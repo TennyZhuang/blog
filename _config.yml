@@ -71,3 +71,8 @@ deploy:
   type: git
   repo: git@github.com:TennyZhuang/blog.git
   branch: gh-pages
+
+# Plugins
+
+duoshuo_shortname: tennyzhuang
+duoshuo_share: true
