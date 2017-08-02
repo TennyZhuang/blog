@@ -12,6 +12,8 @@ HaScheme 基于 Stack 构建了项目，如经典的解释器架构一样，将�
 
 HaScheme 参考了很多 [Write yourself a Scheme in 48 hours](https://en.wikibooks.org/wiki/Write_Yourself_a_Scheme_in_48_Hours) 这个教程的内容，这个教程非常初学者友好，不过这个教程实现的文法作用域有一些 bug。HaScheme 中修复了文法作用域的问题，并且扩展了语法特性。
 
+<!-- more -->
+
 ## Lexer and Parser
 
 Lexer 和 Parser 是写的最舒服的一部分了，主要是 ParseC 实在太好用了，可以用原生 Haskell 代码直接描绘语法生成式的结构，并通过 Parser Monad 很轻松的转换为想要的数据结构。
