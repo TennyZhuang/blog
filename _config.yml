@@ -5,7 +5,7 @@
 # Site
 title: Hexo
 subtitle:
-description:
+description: Across the GreatWall we can reach every corner in the world
 author: TennyZhuang
 language: zh-Hans
 timezone:
@@ -76,3 +76,5 @@ deploy:
 
 duoshuo_shortname: tennyzhuang
 duoshuo_share: true
+
+tencent_analytics: 60573868
