@@ -74,7 +74,6 @@ deploy:
 
 # Plugins
 
-duoshuo_shortname: tennyzhuang
-duoshuo_share: true
+disqus_shortname: blog-zty
 
 tencent_analytics: 60573868
