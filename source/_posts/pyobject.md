@@ -129,6 +129,16 @@ typedef struct {
 
 （看到这里，你可以再思考一下 C 究竟是不是静态语言，至少有没有被人当静态语言用）
 
+为了获取 `PyObject` 和 `PyVarObject` 中的基础变量，`object.h` 定义了三个宏
+
+```c
+#define Py_REFCNT(ob)           (((PyObject*)(ob))->ob_refcnt)
+#define Py_TYPE(ob)             (((PyObject*)(ob))->ob_type)
+#define Py_SIZE(ob)             (((PyVarObject*)(ob))->ob_size)
+```
+
+任何 Python 中的对象都能通过这些宏来获取对应的信息来进行读写。
+
 ## PyTypeObject
 
 Python 中一切皆为对象，类型也不例外。
