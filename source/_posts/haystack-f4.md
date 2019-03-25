@@ -72,18 +72,48 @@ type needleMeta struct {
     size   uint16
 }
 
+type indexItem struct {
+    needleMeta
+    key          uint64
+    alternateKey uint32
+}
+
 type Volume struct {
     index        map[uint64]map[uint32]*needleMeta
     dataFile     *os.File
     journalFile  *os.File
+    indexFile    *os.File
+    indexCache   []indexItem
+}
+
+func (v *Volume) dump() {
+    // 定期执行
+    v.indexFile.Write(binary.Encode(v.indexCache))
+    v.indexCache = make([]indexItem, 0)
 }
 
 func (v *Volume) Recover() {
-    // 假设这里 index 已经从 Index file 恢复了
+    v.indexFile.Seek(0)
+    var it *indexItem
+    for {
+        *it, err = Read(v.indexFile, sizeof(indexItem)
+        if err != nil { break }
+        v.index[it.key][it.alternateKey] = v.needleMeta
+    }
+    var offset uint64
+    if it == nil { offset = 0 } else { offset = it.offset }
+    v.dataFile.Seek(offset)
+    for {
+        needle, offset, err := Read(v.dataFile, sizeof(needle))
+        if err != nil { break }
+        it := indexItem{offset, needle.size, needle.key, needle.alternateKey}
+        v.indexCache = append(v.indexCache, it)
+        index[it.key][it.alternateKey] = it.needleMeta
+    }
     v.jornalFile.Seek(0)
     for {
         key, alternateKey, offset, err := Read(v.jornalFile, 64+32+64)
-        if err != nil { return }
+        if err != nil { break }
         meta, ok := v.index[key][alternateKey]
         if ok && meta.offset <= offset {
             delete(v.index[key], alternateKey)
@@ -93,9 +123,7 @@ func (v *Volume) Recover() {
 
 func (v *Volume) Read(key uint64, alternateKey uint32) ([]byte, error) {
     meta, ok := v.index[key][alternateKey]
-    if !ok {
-        return nil, errNotFound
-    }
+    if !ok { return nil, errNotFound }
 
     return Pread(v.dataFile, meta.offset, meta.size)
 }
@@ -114,11 +142,12 @@ func (v *Volume) Write(key uint64, alternateKey uint32, data []byte) error {
     }
     offset, err := v.dataFile.Write(binary.Encode(&n))
     if err != nil { return err }
-    index[key][alternateKey] = &needleMeta{
+    v.index[key][alternateKey] = &needleMeta{
         offset: offset,
         size:   len(data),
         flags:  0,
     }
+    v.indexCache = append(v.indexCache, indexItem{...})
 }
 
 func (v *Volume) Delete(key uint64, alternateKey uint32) error {
