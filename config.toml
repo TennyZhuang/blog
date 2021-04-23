@@ -1,0 +1,4 @@
+baseURL = "http://example.org/"
+languageCode = "zh-cn"
+title = "纯纯的 blog"
+theme = "hugo-theme-tokiwa"
