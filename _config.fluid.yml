@@ -629,11 +629,11 @@ post:
   # 评论插件
   # Comment plugin
   comments:
-    enable: false
+    enable: true
     # 指定的插件，需要同时设置对应插件的必要参数
     # The specified plugin needs to set the necessary parameters at the same time
-    # Options: utterances | disqus | gitalk | valine | waline | changyan | livere | remark42 | twikoo
-    type: disqus
+    # Options: utterances | disqus | gitalk | valine | waline | changyan | livere | remark42 | twikoo | cusdis
+    type: cusdis
 
 
 #---------------------------
@@ -760,6 +760,14 @@ twikoo:
   envId:
   region: ap-shanghai
   path: window.location.pathname
+
+# Cusdis
+# 基于第三方服务或自托管服务
+# Based on third-party or self-hosted service
+# See https://cusdis.com
+cusdis:
+  host: https://blog-cusdis.vercel.app
+  appID: 64ba9d39-bca2-4cd8-828e-22b73177630e
 
 #---------------------------
 # 归档页
@@ -911,11 +919,11 @@ links:
   # 评论插件
   # Comment plugin
   comments:
-    enable: false
+    enable: true
     # 指定的插件，需要同时设置对应插件的必要参数
     # The specified plugin needs to set the necessary parameters at the same time
     # Options: utterances | disqus | gitalk | valine | waline | changyan | livere | remark42 | twikoo
-    type: disqus
+    type: cusdis
 
 
 #---------------------------
