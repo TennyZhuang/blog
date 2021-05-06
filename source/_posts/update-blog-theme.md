@@ -28,20 +28,14 @@ tags:
 第一件事情自然是喜闻乐见的换皮，选了 
 [hexo-fluid-theme](https://github.com/fluid-dev/hexo-theme-fluid)，就觉得挺好看的，配置也比较完善，代码也不复杂，看了看感觉如果有必要的话（其实很快就有必要了），我自己也改得动。
 
-配置的过程中，遇到了两个麻烦，一个是这个主题必须配置一个 banner_img，而且默认的太丑了，于是为了提高辨识度，我随手画了一个更丑的，以后有机会再优化（下次一定）。另一个是主页上要求写一个 slogan，我想把 [迟语录 chi_corpus](https://github.com/TennyZhuang/Chi-Corpus) 随机显示在主页上，但是 hexo-fluid-theme 只支持 json 格式，即使我 commit 一个 json 格式上去，也没法做到随机返回，独立维护一个转换服务又会极大增加我的运维负担，因此动了薅 vercel 羊毛的心思。翻了翻 [vercel serverless](https://vercel.com/docs/serverless-functions/introduction) 的使用文档，感觉使用起来非常简单，而事实上也是如此。仅仅是花了五分钟，添加一个四十行的 go 文件，我就轻松达到了我的目的。赞美 vercel（*1）！
+配置的过程中，遇到了两个麻烦，一个是这个主题必须配置一个 banner_img，而且默认的太丑了，于是为了提高辨识度，我随手画了一个更丑的，以后有机会再优化（下次一定）。另一个是主页上要求写一个 slogan，我想把 [迟语录 chi_corpus](https://github.com/TennyZhuang/Chi-Corpus) 随机显示在主页上，但是 hexo-fluid-theme 只支持 json 格式，即使我 commit 一个 json 格式上去，也没法做到随机返回，独立维护一个转换服务又会极大增加我的运维负担，因此动了薅 vercel 羊毛的心思。翻了翻 [vercel serverless](https://vercel.com/docs/serverless-functions/introduction) 的使用文档，感觉使用起来非常简单，而事实上也是如此。仅仅是花了五分钟，添加一个四十行的 go 文件，我就轻松达到了我的目的。可以在[首页](/)观看效果。赞美 vercel（*1）！
 
 ```go
 const CHI_CORPUS_URL = "https://raw.githubusercontent.com/TennyZhuang/Chi-Corpus/master/common.txt"
 
-
-
 type Data struct {
-
 	Content string `json:"content"`
-
 }
-
-
 
 func fetchChiCorpus() (*Data, error) {
 	resp, err := http.Get(CHI_CORPUS_URL)
