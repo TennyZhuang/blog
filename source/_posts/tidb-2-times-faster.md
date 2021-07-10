@@ -131,7 +131,7 @@ func (b *builtinArithmeticPlusIntSig) plusSS(result *chunk.Column, lhi64s, rhi64
 
 ---
 
-![能不能再给力一点啊老师.jpg][https://user-images.githubusercontent.com/9161438/125152990-49335b80-e183-11eb-82cb-dc800574c956.png]
+![能不能再给力一点啊老师.jpg](https://user-images.githubusercontent.com/9161438/125152990-49335b80-e183-11eb-82cb-dc800574c956.png)
 
 上面的 PR 是我花十分钟写的，我是想再给力一点的，但是懒（躺），下面只说失败的尝试和思路。
 
@@ -184,7 +184,7 @@ func (b *builtinArithmeticPlusIntSig) plusNonStrict(result *chunk.Column, lhi64s
 
 ---
 
-![能不能再给力一点啊老师.jpg][https://user-images.githubusercontent.com/9161438/125152990-49335b80-e183-11eb-82cb-dc800574c956.png]
+![能不能再给力一点啊老师.jpg](https://user-images.githubusercontent.com/9161438/125152990-49335b80-e183-11eb-82cb-dc800574c956.png)
 
 能啊，直接看雷宇哥哥文章的 SIMD 版本 [I beat TiDB with 20 LOC](https://internals.tidb.io/t/topic/174)。
 
