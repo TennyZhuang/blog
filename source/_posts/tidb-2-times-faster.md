@@ -118,7 +118,7 @@ func (b *builtinArithmeticPlusIntSig) plusSS(result *chunk.Column, lhi64s, rhi64
 
 是的，代码改动只有三行，且只是原封不动 Copy & Paste（点题），我们来看看 benchmark 的结果。TiDB 非常贴心地提供了表达式模块的 benchmark 脚本，我们可以直接使用：
 
-![benchmark](https://user-images.githubusercontent.com/9161438/125152817-e68d9000-e181-11eb-970d-ba39ed400017.png)
+![Benchmark PlusInt](https://user-images.githubusercontent.com/9161438/125152817-e68d9000-e181-11eb-970d-ba39ed400017.png)
 
 可以看到，四种函数的提升都是非常可观的。其中第一个 Case 更是直接性能翻倍。
 
@@ -131,7 +131,7 @@ func (b *builtinArithmeticPlusIntSig) plusSS(result *chunk.Column, lhi64s, rhi64
 
 ---
 
-![能不能再给力一点啊老师.jpg](https://user-images.githubusercontent.com/9161438/125152990-49335b80-e183-11eb-82cb-dc800574c956.png)
+![](https://user-images.githubusercontent.com/9161438/125152990-49335b80-e183-11eb-82cb-dc800574c956.png)
 
 上面的 PR 是我花十分钟写的，我是想再给力一点的，但是懒（躺），下面只说失败的尝试和思路。
 
@@ -184,7 +184,7 @@ func (b *builtinArithmeticPlusIntSig) plusNonStrict(result *chunk.Column, lhi64s
 
 ---
 
-![能不能再给力一点啊老师.jpg](https://user-images.githubusercontent.com/9161438/125152990-49335b80-e183-11eb-82cb-dc800574c956.png)
+![](https://user-images.githubusercontent.com/9161438/125152990-49335b80-e183-11eb-82cb-dc800574c956.png)
 
 能啊，直接看雷宇哥哥文章的 SIMD 版本 [I beat TiDB with 20 LOC](https://internals.tidb.io/t/topic/174)。
 
