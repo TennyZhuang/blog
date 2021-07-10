@@ -179,6 +179,7 @@ func (b *builtinArithmeticPlusIntSig) plusNonStrict(result *chunk.Column, lhi64s
                 lh, rh := lhi64s[i], rhi64s[i]
                 resulti64s[i] = lh + rh
         }
+        return nil
 }}
 ```
 
