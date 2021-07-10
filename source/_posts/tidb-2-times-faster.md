@@ -1,5 +1,5 @@
 ---
-title: Copy & Paste 三行代码让TiDB 性能翻倍
+title: Copy & Paste 三行代码让 TiDB 性能翻倍
 date: 2021-07-10 14:07:02
 tags:
 - TiDB
