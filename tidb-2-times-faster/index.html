@@ -87,7 +87,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/">
                 <i class="iconfont icon-home-fill"></i>
-                Startseite
+                Hejmpaĝo
               </a>
             </li>
           
@@ -99,7 +99,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/archives/">
                 <i class="iconfont icon-archive-fill"></i>
-                Archiv
+                Arkivoj
               </a>
             </li>
           
@@ -111,7 +111,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/tags/">
                 <i class="iconfont icon-tags-fill"></i>
-                Etiketten
+                Etikedoj
               </a>
             </li>
           
@@ -171,7 +171,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      28
+      27
        分钟
     </span>
   
@@ -234,7 +234,7 @@
 </ol>
 <p>那么我们可以直接删除 null check 的三行代码，因为 null 的结果已经被写到 result 的 bitmap 里了，这里无脑做一下计算就可以。但由于 overflow check 的存在，我们不能返回非预期的 overflow 错误（可以说 plus 运算本身无状态，overflow check 引入了状态），因此如果发生了 overflow 的话，我们得确认本身不是 null，如果确认不是 null 的话，才返回错误。从某种意义上，这个优化可以认为是手动帮 CPU 做流水线执行。</p>
 <hr>
-<p>![能不能再给力一点啊老师.jpg][<a target="_blank" rel="noopener" href="https://user-images.githubusercontent.com/9161438/125152990-49335b80-e183-11eb-82cb-dc800574c956.png]">https://user-images.githubusercontent.com/9161438/125152990-49335b80-e183-11eb-82cb-dc800574c956.png]</a></p>
+<p><img src="https://user-images.githubusercontent.com/9161438/125152990-49335b80-e183-11eb-82cb-dc800574c956.png" srcset="/img/loading.gif" lazyload alt="能不能再给力一点啊老师.jpg"></p>
 <p>上面的 PR 是我花十分钟写的，我是想再给力一点的，但是懒（躺），下面只说失败的尝试和思路。</p>
 <p>首先是想办法优化掉 overflow check 的 branch，我先把 overflow check 的 branch 提取到外侧：</p>
 <figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(b *builtinArithmeticPlusIntSig)</span> <span class="hljs-title">plusSS</span><span class="hljs-params">(result *chunk.Column, lhi64s, rhi64s, resulti64s []<span class="hljs-keyword">int64</span>)</span> <span class="hljs-title">error</span></span> &#123;<br>+       <span class="hljs-keyword">var</span> hasOverflow <span class="hljs-keyword">int64</span> = <span class="hljs-number">0</span><br>        <span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">len</span>(lhi64s); i++ &#123;<br>                lh, rh := lhi64s[i], rhi64s[i]<br><br>-               <span class="hljs-keyword">if</span> (lh &gt; <span class="hljs-number">0</span> &amp;&amp; rh &gt; math.MaxInt64-lh) || (lh &lt; <span class="hljs-number">0</span> &amp;&amp; rh &lt; math.MinInt64-lh) &#123;<br>-                       <span class="hljs-keyword">if</span> result.IsNull(i) &#123;<br>-                               <span class="hljs-keyword">continue</span><br>-                       &#125;<br>-                       <span class="hljs-keyword">return</span> types.ErrOverflow.GenWithStackByArgs(<span class="hljs-string">&quot;BIGINT&quot;</span>, fmt.Sprintf(<span class="hljs-string">&quot;(%s + %s)&quot;</span>, b.args[<span class="hljs-number">0</span>].String(), b.args[<span class="hljs-number">1</span>].String()))<br>-               &#125;<br>-<br>+               hasOverflow |= (b2i(lh &gt; <span class="hljs-number">0</span>) &amp; b2i(rh &gt; math.MaxInt64-lh)) | (b2i(lh &lt; <span class="hljs-number">0</span>)&amp;b2i(rh &lt; math.MinInt64-lh))&amp;b2iNot(result.IsNull(i))<br>                resulti64s[i] = lh + rh<br>        &#125;<br>+<br>+       <span class="hljs-keyword">if</span> <span class="hljs-keyword">uint64</span>(hasOverflow) &gt; <span class="hljs-number">0</span> &#123;<br>+               <span class="hljs-keyword">return</span> types.ErrOverflow.GenWithStackByArgs(<span class="hljs-string">&quot;BIGINT&quot;</span>, <span class="hljs-string">&quot;overflow&quot;</span>)<br>+       &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br> &#125;<br></code></pre></td></tr></table></figure>
@@ -248,7 +248,7 @@
 <p>既然解决不了问题，我们不妨解决提问题的人。对于 AP 性能有极致追求的用户，我们可以提供某种 non-strict sql_mode，允许整型 overflow，结果是未定义的，这样我们就能自由地去掉 check l了。</p>
 <figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-comment">// 这里已经不需要四种符号的版本了</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(b *builtinArithmeticPlusIntSig)</span> <span class="hljs-title">plusNonStrict</span><span class="hljs-params">(result *chunk.Column, lhi64s, rhi64s, resulti64s []<span class="hljs-keyword">int64</span>)</span></span> &#123;<br>        <span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">len</span>(lhi64s); i++ &#123;<br>                lh, rh := lhi64s[i], rhi64s[i]<br>                resulti64s[i] = lh + rh<br>        &#125;<br>&#125;&#125;<br></code></pre></td></tr></table></figure>
 <hr>
-<p>![能不能再给力一点啊老师.jpg][<a target="_blank" rel="noopener" href="https://user-images.githubusercontent.com/9161438/125152990-49335b80-e183-11eb-82cb-dc800574c956.png]">https://user-images.githubusercontent.com/9161438/125152990-49335b80-e183-11eb-82cb-dc800574c956.png]</a></p>
+<p><img src="https://user-images.githubusercontent.com/9161438/125152990-49335b80-e183-11eb-82cb-dc800574c956.png" srcset="/img/loading.gif" lazyload alt="能不能再给力一点啊老师.jpg"></p>
 <p>能啊，直接看雷宇哥哥文章的 SIMD 版本 <a target="_blank" rel="noopener" href="https://internals.tidb.io/t/topic/174">I beat TiDB with 20 LOC</a>。</p>
 <p>只能说，TiDB 的 Executor 还有很长的路要走（</p>
 <hr>
@@ -353,7 +353,7 @@ option = {
                     
                       <a href="/update-blog-theme/">
                         <span class="hidden-mobile">五一摸鱼周记：更新 Blog 主题、水 PR</span>
-                        <span class="visible-mobile">Nächster</span>
+                        <span class="visible-mobile">Sekva afiŝo</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
                     
@@ -401,7 +401,7 @@ option = {
     
       <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
         <div id="toc">
-  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;Enhavtabelo</p>
   <div class="toc-body" id="toc-body"></div>
 </div>
 
@@ -427,7 +427,7 @@ option = {
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
-        <h4 class="modal-title w-100 font-weight-bold">Suchen</h4>
+        <h4 class="modal-title w-100 font-weight-bold">Serĉi</h4>
         <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -436,7 +436,7 @@ option = {
         <div class="md-form mb-5">
           <input type="text" id="local-search-input" class="form-control validate">
           <label data-error="x" data-success="v"
-                 for="local-search-input">Stichwort</label>
+                 for="local-search-input">ŝlosivorto</label>
         </div>
         <div class="list-group" id="local-search-result"></div>
       </div>
