@@ -170,7 +170,7 @@ func (b *builtinArithmeticPlusIntSig) plusSS(result *chunk.Column, lhi64s, rhi64
 
 但总之想优化掉 overflow check 是一件 non-trivial 的事情，
 
-既然解决不了问题，我们不妨解决提问题的人。对于 AP 性能有极致追求的用户，我们可以提供某种 non-strict sql_mode，允许整型 overflow，结果是未定义的，这样我们就能自由地去掉 check l了。
+既然解决不了问题，我们不妨解决提问题的人。对于 AP 性能有极致追求的用户，我们可以提供某种 non-strict sql_mode，允许整型 overflow，结果是未定义的，这样我们就能自由地去掉 check 了。
 
 ```golang
 // 这里已经不需要四种符号的版本了
