@@ -164,6 +164,8 @@ error[E0599]: the method `finish` exists for struct `ABuilder<{S | 0b100}>`, but
            `Assert<{S & 0b110 == 0b110}>: IsTrue`
 ```
 
+---
+
 **只能传递一次的参数**
 
 此时我们又对 c 提了一些奇怪需求，我们希望 c 是可选参数，但是最多只会被传递一次（即 0 或 1 次）：
