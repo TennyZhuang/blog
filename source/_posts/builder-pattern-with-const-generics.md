@@ -248,4 +248,4 @@ mod tests {
 
 **总结**
 
-这确实是一篇搞笑文章，所有需求都是我在学习 const generics 先进语法的时候随便做的实验，事实上 Builder Pattern 并不适用于这些奇怪的需求，而且用到了 `const_evaluatable_checked` 这种纸糊的 feature 也不可能用于生产。不过基于 `const_evaluatable_checked` 可以实现很多奇奇怪怪的需求，比如可以做编译期状态压缩 DP（rustc 爆炸中），还可以做一些奇奇怪怪的限制（比如限制一个方法最少被调用 n 次，最多被调用 m 次，完全想不到什么场景需要），可以认为是对 Rust typesafe state machine 能力的一个强化了，对于一些比较相似的状态转换过程，我们可以直接基于 const generics 来减少重复代码（DRY）。
+这确实是一篇搞笑文章，所有需求都是我在学习 const generics 先进语法的时候随便做的实验，事实上 Builder Pattern 并不适用于这些奇怪的需求，而且用到了 `const_evaluatable_checked` 这种纸糊的 feature 也不可能用于生产。有一个真正用于生产的 crate [typed-builder](https://github.com/idanarye/rust-typed-builder) 思路跟我类似，不过直接生成了一个长度为 n （n 为 fields 的数量）的 tuple 来记录状态，更合理一些。不过基于 `const_evaluatable_checked` 可以实现很多奇奇怪怪的需求，比如可以做编译期状态压缩 DP（rustc 爆炸中），还可以做一些奇奇怪怪的限制（比如限制一个方法最少被调用 n 次，最多被调用 m 次，完全想不到什么场景需要），可以认为是对 Rust typesafe state machine 能力的一个强化了，对于一些比较相似的状态转换过程，我们可以直接基于 const generics 来减少重复代码（DRY）。
