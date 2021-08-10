@@ -123,7 +123,7 @@ insert(37, "k1", version=3)
 
 可以看到一波操作之后，我们拥有了三个版本的 B+ 树！每个版本都是一个符合我们预期的全局快照，我们查找的时候可以先快速找到需要的版本，然后在每个版本上快速地进行符合我们优化预期分页查询。与此同时，我们也并没有占用三倍的空间，理论的空间复杂度是 $n+m log(n)$ 其中 n 是树的大小，m 是维护的版本数。
 
-[可持久化数据结构](https://en.wikipedia.org/wiki/Persistent_data_structure) 是一个数据结构上的概念，但跟 MVCC 不谋而合。而当我们尝试在数据库上使用了可持久化B+树后，我们事实上是把 MVCC 做到了整个索引的数据结构里，而非行记录里。整个索引结构从 `BPTree<PersistentList<Value>>` 转变为了 `PersistentBPTree<Value>`。
+[可持久化数据结构](https://en.wikipedia.org/wiki/Persistent_data_structure) 是一个数据结构上的概念，但跟 MVCC 不谋而合。而当我们尝试在数据库上使用了可持久化B+树后，我们事实上是把 MVCC 做到了整个索引的数据结构里，而非行记录里。整个索引结构从 `BPTree<Key, PersistentList<Value>>` 转变为了 `List<PersistentBPTree<Key, Value>>`。
 
 另一个问题是，为什么我把叶节点之间的连接指针删掉了，因为不删没法做，原因可以留给读者思考一下，这也是可持久化数据结构的局限性之一。
 
