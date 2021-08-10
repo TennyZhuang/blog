@@ -2,6 +2,9 @@
 title: 用可持久化 B+ 树优化 OFFSET 子句
 date: 2021-08-10 22:47:38
 tags:
+- Programming
+- Database
+- Algorithm
 ---
 
 ![某网站的分页](https://user-images.githubusercontent.com/9161438/126614791-22d7a7cc-cf5f-4384-8b87-6ff91b7c0047.png)
