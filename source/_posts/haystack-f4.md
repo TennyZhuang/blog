@@ -2,9 +2,9 @@
 title: "[Paper Notes] Facebook Haystack and F4"
 date: 2019-03-23 23:35:21
 tags:
-  - paper
-  - storage
-  - system
+  - Paper Note
+  - Storage
+  - System
 ---
 
 ## 前言
