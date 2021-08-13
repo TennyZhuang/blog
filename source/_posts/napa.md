@@ -111,7 +111,9 @@ Google 的 infra 是真的强，所以我感觉其实 Napa 做的最重要的事
 
 ## Summary
 
-总体来说感觉还是比较中规中矩的一些 idea，不过也可以看出 Google 对工程细节的把控非常深了。比如同样是 LSMT 的架构，我怀疑换成 TiDB 的话，robust query performance 可能更取决于查询线程池的调度、gRPC 各种不确定因素而非 delta file 的数量。只有在工程细节上优化得足够好，才能在各个指标上更加可控的 trade off configuration。数据库服务需要很强的确定性，相比于 auto driven 来说，这种 trade off configuration 说不定对用户是个更好的选择。
+总体来说感觉还是比较中规中矩的一些 idea，不过也可以看出 Google 对工程细节的把控非常深了。比如同样是 LSMT 的架构，我怀疑换成 TiDB 的话，robust query performance 可能更取决于查询线程池的调度、gRPC 各种不确定因素而非 delta file 的数量。只有在工程细节上优化得足够好，才能在各个指标上更加可控的 trade off configuration。
+
+数据库服务需要很强的确定性，相比于 auto driven 来说，这种 trade off configuration 说不定对用户是个更好的选择。（然后我准备去看另一篇 PVLDB auto driven 了）
 
 
 ~~彩蛋：[blog.zhuangty.com](blog.zhuangty.com) 终于用上 Google analytics 了，说不定 tygg 在看报表的时候也用上 napa 了~~
