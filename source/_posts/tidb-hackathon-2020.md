@@ -31,14 +31,19 @@ tags:
 
 ## 我们想做什么？
 
-每年的 TiDB Hackathon 其实都会有 UDF 的 proposal，这里面也包括我在 2018 年参赛时实现的基于 lua 的 UDF。当时的实现非常粗糙，我们在 TiDB/TiKV 上直接起了一个 lua vm，然后允许用户以 CREATE FUNCTION 的语法把 lua 函数上传到 TiDB 并保存在 PD，同时支持用户通过 `call_lua(fn_name, args)` 的语法来调用 UDF。TiDB/TiKV 的执行器会从 PD 加载函数 body，并通过 lua vm 执行。这个方案有许多问题，以至于只能是一个 demo，始终无法落地：
+UDF 是每届 TiDB Hackathon 的常客，每次都会有 UDF 的 proposal，这里面也包括我在 2018 年参赛时实现的基于 lua 的 UDF。当时的实现非常粗糙，我们在 TiDB/TiKV 上直接起了一个 lua vm，然后允许用户以 CREATE FUNCTION 的语法把 lua 函数上传到 TiDB 并保存在 PD，同时支持用户通过 `call_lua(fn_name, args)` 的语法来调用 UDF。TiDB/TiKV 的执行器会从 PD 加载函数 body，并通过 lua vm 执行。这个方案有许多问题，以至于只能是一个 demo，始终无法落地：
 
 1. lua 生态较差，仅适用于实现一些功能简单的函数。而类似方法支持更多语言需要 TiDB 内置多种 vm。
 2. 与 vm  的交互开销较高，UDF lua 相比 native 函数，执行效率偏低。
 
 lua UDF 这个项目也因此很遗憾没有拿奖。~~一个没被采用的队名：MAKE UDF GREAT AGAIN!~~
 
-得益于 TiDB 本身是开源的，有 UDF 需求的用户可以通过修改源码的方式（非常简单），添加自定义函数并自行部署。然而随着 Cloud Native 时代的到来，DBaaS 成为了越来越多用户使用数据库的方式，这种方式不再适用 —— 公有云用户无法修改 TiDB/TiKV 的二进制文件。在 2020 TiDB Hackathon 选题的时候，我们又把这个 topic 重新捡了起来，与之前不同的是，这次我们不再是 idea driven hackathon，更多关注的是方案可落地，**让 UDF 这个选题从未来的 Hackathon 中消失**，在设计之初，我们就定下了若干目标：
+这次重新捡起了 UDF 这个 topic，主要是时机相比与 18 年已经成熟了，有两个重要的情况发生了变化：
+
+1. VM 生态：我在 18 年选择使用 lua 做 UDF 是无奈之选。大部分系统的扩展能力都是通过 lua 实现的，因为缺少一个兼具安全性、高性能、通用性的轻量 VM。而 Wasm 的到来很好地帮我们解决了这个问题。很多 infra 项目比如 [Envoy](https://www.envoyproxy.io/)、[OpenShift](https://www.redhat.com/en/technologies/cloud-computing/openshift) 也开始用 Wasm 作为扩展的 runtime。
+1. 云原生时代：UDF 是满足用户自定义需求的一个重要能力。在私有化部署的 TiDB 上，用户可以通过修改开源版本代码的方式实现各种自定义需求，但随着云原生时代的到来，更多的用户选择基于云的 DBaaS 方案使用 TiDB，云上标准化的 TiDB 需要一个完善的标准 UDF 方案。同时基于云的 UDF 也可以跟用户云上其他生态实现互通，比如可以用 UDF 实现对对象存储数据的读取，达到异构存储的目的，或者利用 UDF 调用一些机器学习模型进行人脸识别，再拿识别的结果与其他数据表进行匹配（join）。基于 UDF 的能力，这些需求都可以在 TiDB 内部完成。
+
+这次再用同一个 topic 参赛，但我们不再是 idea driven hackathon，更多关注的是方案可落地，**让 UDF 这个选题从未来的 TiDB Hackathon 中消失**，在设计之初，我们就定下了若干目标：
 
 1. 灵活性：应该支持更多的编程语言进行 UDF 的编写。不同人对编程语言的喜好大相庭径，强迫 TiDB 的用户使用 lua 编写 UDF 并不是一种优美的做法。
 2. 安全性：数据库的安全性至关重要，应该保证函数在沙箱环境运行，不能造成权限泄漏，也应该尽可能减少对业务稳定性的影响。
@@ -137,7 +142,7 @@ SELECT wasm_tidb('use test; create table t1 (id int primary key); insert into t1
 我们的参赛主题写的是 TOT（TiDB over TIDB），事实上我一开始是想展示三种 TOT 的 demo（很遗憾的是我们最后只实现了两种）：
 
 1. TiDB 通过 UDF 访问云上的另一个 TiDB，展示 UDF 可以提供受沙箱限制的网络能力，为云上和其他服务联动提供想象空间。
-2. TiDB 通过 UDF 运行另一个编译成Wasm 的 TiDB，展示 wadm 强大的可扩展性，我们甚至可以把 TiDB 本身移植上去（见上文）。
+2. TiDB 通过 UDF 运行另一个编译成 Wasm 的 TiDB，展示 wadm 强大的可扩展性，我们甚至可以把 TiDB 本身移植上去（见上文）。
 3. **在 UDF 中暴露受控的合适的内部接口，例如执行一些查询/修改，达到类似存储过程的效果。**
 
 至少在互联网公司的数据库应用中，存储过程已经是基本被抛弃的功能。存储过程有很多众所周知的缺点：
