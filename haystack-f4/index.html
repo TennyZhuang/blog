@@ -1,0 +1,522 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-cn" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="前言Haystack 和 F4 是 Facebook 为了解决照片存储的场景开发的一套小文件存储系统。整个设计非常简洁（褒义，虽然简洁到让人怀疑这也能发 OSDI），但是却把每个部分的设计和考虑解释得非常清楚。读完 GFS 会感觉有不少未解之谜在 paper 中没交代清楚，但读完 Haystack 和 F4 就感觉异常通顺。Facebook 一开始开发了 Haystack 是为了覆盖整个照片存储场">
+  <meta name="author" content="TennyZhuang">
+  <meta name="keywords" content="">
+  
+  <title>[Paper Notes] Facebook Haystack and F4 - 纯纯的 Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.zhuangty.com","root":"/","version":"1.8.10","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":"UA-120895130-2","gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>纯纯的 Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Startseite
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archiv
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Etiketten
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/bg.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="[Paper Notes] Facebook Haystack and F4">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-03-23 23:35" pubdate>
+        2019年3月23日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      45
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">[Paper Notes] Facebook Haystack and F4</h1>
+            
+            <div class="markdown-body">
+              <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><a target="_blank" rel="noopener" href="https://www.usenix.org/legacy/event/osdi10/tech/full_papers/Beaver.pdf">Haystack</a> 和 <a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/conference/osdi14/osdi14-paper-muralidhar.pdf">F4</a> 是 Facebook 为了解决照片存储的场景开发的一套小文件存储系统。整个设计非常简洁（褒义，虽然简洁到让人怀疑这也能发 OSDI），但是却把每个部分的设计和考虑解释得非常清楚。读完 <a target="_blank" rel="noopener" href="https://static.googleusercontent.com/media/research.google.com/zh-CN//archive/gfs-sosp2003.pdf">GFS</a> 会感觉有不少未解之谜在 paper 中没交代清楚，但读完 Haystack 和 F4 就感觉异常通顺。Facebook 一开始开发了 Haystack 是为了覆盖整个照片存储场景，后来发现了温存储场景可以优化的地方，又开发了 F4 将冷数据从 Haystack 中剥离出来，单独存储，并且 F4 的 paper 中描述了整套 BLOB Storage 系统同时修改了一些 Haystack 的设定，因此将这两篇放在一起讲。F4 也分享了很多 Facebook 在这套系统的设计和使用上的很多经验，值得学习。</p>
+<a id="more"></a>
+
+<h2 id="Haystack"><a href="#Haystack" class="headerlink" title="Haystack"></a>Haystack</h2><blockquote>
+<p>Needle in a haystack</p>
+</blockquote>
+<p>Needle 是 Haystack 中的基本存储单位，英文翻译是针，Haystack 的英文翻译是草垛。出于好奇 Facebook 为什么取了这个名字的目的去搜了一下，发现这是一句类似于“大海捞针”（草垛里捞针）的常用短语，这么理解的话这个名字对于一个存储海量小文件的存储系统就非常形象了~</p>
+<h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><p>在开发 Haystack 之前，Facebook 使用基于 NFS 的设计方案。每个小文件直接对应 NFS 上的一个物理文件，在 CDN Cache Miss 的文件会直接通过 Photo Server 落到 NFS 上读，这种方案的缺陷非常明显，就是小文件给文件系统带来的太多元数据。POSIX 文件系统在文件节点上存储了大量 Facebook 的场景下不需要的信息（如权限信息等），每个 INode 都要占据大约 500 byte 的空间，导致在大量小文件的场景下，文件系统无法将元信息全部缓存到自己的内存中，访问数据的时候，除了必须要的一次数据读取的磁盘 IO，在获取元数据以定位真实数据位置的过程中也需要经过若干次磁盘 IO，这是基于 NFS 的系统导致图片访问慢的主要原因。</p>
+<p>Haystack 的优化目标非常明确，就是砍掉无用的元信息，压缩元信息到足够小并全部加载到内存中，将对单张图片的访问精确地缩减为一次磁盘 IO。</p>
+<p>Haystack 的优化思路也非常的简单，既然小文件的元信息太多，那么就把大量小文件打包成大文件再存，自己维护小文件需要的少量 元信息。在 Haystack 中，存储的小文件及其元信息称为 Needle，而打成的大文件包称为 Volume。Haystack 的核心部分其实就是这个单机的小文件存储引擎。</p>
+<h3 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h3><p><img src="https://i.loli.net/2019/03/24/5c975a4eb47ba.png" srcset="/img/loading.gif" lazyload alt="Figure 3 in Haystack"></p>
+<h4 id="Haystack-Cache"><a href="#Haystack-Cache" class="headerlink" title="Haystack Cache"></a>Haystack Cache</h4><p>Facebook 的架构里用户除了访问 CDN 以外，也可以跳过 CDN 直接访问数据，这两种请求最终都会由 Haystack Cache 处理（猜测区别仅仅是内部和外部 Cache）。Haystack Cache 就是个很平凡的 Cache 逻辑，以 Photo ID 为 key 维护了一个分布式哈希表，如果请求的照片没有缓存，就从底层的 Haystack Store 读取数据，并且对<strong>满足一定条件的</strong>查询结果进行缓存。</p>
+<p>这块唯一需要注意一些的就是这个缓存条件，当且仅当满足两个条件的时候，Haystack Cache 才会进行缓存：</p>
+<ol>
+<li>直接来自用户，而非来自 CDN 的请求。对于一般的来自 CDN 的请求，Haystack 直接将缓存的任务交给对方。从这个角度来看，Haystack Cache 的定位基本就等于一个系统内部的 CDN。</li>
+<li>照片存在 write-enabled 节点上的。这个跟之后提到的照片热度的 Timezone 有关，可以简单理解为从 Facebook 的场景来看，上传了很长一段时间以后的照片没有缓存价值。</li>
+</ol>
+<h4 id="Haystack-Store"><a href="#Haystack-Store" class="headerlink" title="Haystack Store"></a>Haystack Store</h4><p>Haystack Store 是最核心的模块，也就是 Haystack 的存储节点。Haystack 放弃了原生的 POSIX 作为小文件存储的接口，但沿用了 POSIX 文件系统的底层，自己基于这个底层开发了一个单机的小文件存储系统，并运行在每块 Disk 或者每个节点上、</p>
+<p>每个 Volume 有唯一的 Volume ID，标识一个 Logical Volume，但为了数据可靠性，每个 Logical Volume 在集群内会有三个副本，这些 Volume 实体称为 Physical Volume，在单机的存储引擎中。这些 Physical Volume 是真实的 POSIX 文件系统下的文件单位，分散在 Haystack Store 的节点中。</p>
+<p>每个 Volume 会存储数百万张照片，并由三个文件组成，Data file 和 Index file 和 Journal file（后续加入）。Data file 由连续的 Needle 组成，每个 Needle 除了存储图片本身的数据以外，还存储了一些额外的元信息，其中比较 重要的有照片的 key 和 alternate key，图片的 size 和 checksum，以及一个删除标志位。</p>
+<p>key 和 alternate key 用于 Facebook 场景下的二层索引，因为 Facebook 对每张照片存了四种不同 size 的图片（包括缩略图，小图，大图，原图），因此每张照片有一个主键，然后再通过 alternate key 对应到需要的尺寸的图片。</p>
+<p>根据 key 和 alternate key，Haystack store 的每个节点在内存中为每个 volume 构建了一个双层的索引，用于快速找到对应的 Needle 在 data file 中的偏移量，并缓存了 size 信息减少一次读取元信息的 IO。而 Index file 是这个索引文件的一个快照。</p>
+<p>一个 Volume 支持数据粒度的 Read，Write 和 Delete 操作，实现在了解数据的定义之后都非常的 trivial，直接通过下面的伪代码展示，但有一些场景需要考虑。</p>
+<p>Index file 是定期 dump 到磁盘中的，因此宕机时会丢失数据，需要恢复，对于新写入的数据这非常简单，因为遗失的数据总是在 data file 的尾部，从 index 中最高的 offset 开始从 data file 恢复这些 meta 信息即可。但是对于删除的数据无法简单地恢复，在旧版本的 Haystack（即 Haystack paper）中，删除是通过修改 data file 中 needle 的标志位来完成持久化的，而在新版本（F4 paper 中提到的 Haystack），每次删除文件仅需要在 journal file 中添加一条记录，这是磁盘 append 操作因此非常快，而 Index 在宕机恢复时仅需要将 Journal file 和 Index file 做一个 merge 即可。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> Needle <span class="hljs-keyword">struct</span> &#123;<br>    header       [<span class="hljs-number">4</span>]<span class="hljs-keyword">byte</span> <span class="hljs-comment">// 标识 Needle 开头，恢复数据的时候比较有用</span><br>    cookie       <span class="hljs-keyword">uint64</span>  <span class="hljs-comment">// 我也不知道是干嘛的，据说是反爬虫用的</span><br>    key          <span class="hljs-keyword">uint64</span>  <br>    alternateKey <span class="hljs-keyword">uint64</span>  <br>    flags        <span class="hljs-keyword">uint8</span>   <span class="hljs-comment">// 目前看起来只标志 deleted，并且在后续不再需要这个 deleted flag</span><br>    size         <span class="hljs-keyword">uint16</span><br>    data         []<span class="hljs-keyword">byte</span><br>    footer       [<span class="hljs-number">4</span>]<span class="hljs-keyword">byte</span> <span class="hljs-comment">// 标识 needle 结尾，恢复数据的时候比较有用</span><br>    checksum     <span class="hljs-keyword">uint32</span><br>&#125;<br><br><span class="hljs-keyword">type</span> needleMeta <span class="hljs-keyword">struct</span> &#123;<br>    offset <span class="hljs-keyword">uint64</span><br>    size   <span class="hljs-keyword">uint16</span><br>&#125;<br><br><span class="hljs-keyword">type</span> indexItem <span class="hljs-keyword">struct</span> &#123;<br>    needleMeta<br>    key          <span class="hljs-keyword">uint64</span><br>    alternateKey <span class="hljs-keyword">uint32</span><br>&#125;<br><br><span class="hljs-keyword">type</span> Volume <span class="hljs-keyword">struct</span> &#123;<br>    index        <span class="hljs-keyword">map</span>[<span class="hljs-keyword">uint64</span>]<span class="hljs-keyword">map</span>[<span class="hljs-keyword">uint32</span>]*needleMeta<br>    dataFile     *os.File<br>    journalFile  *os.File<br>    indexFile    *os.File<br>    indexCache   []indexItem<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(v *Volume)</span> <span class="hljs-title">dump</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 定期执行</span><br>    v.indexFile.Write(binary.Encode(v.indexCache))<br>    v.indexCache = <span class="hljs-built_in">make</span>([]indexItem, <span class="hljs-number">0</span>)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(v *Volume)</span> <span class="hljs-title">Recover</span><span class="hljs-params">()</span></span> &#123;<br>    v.indexFile.Seek(<span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">var</span> it *indexItem<br>    <span class="hljs-keyword">for</span> &#123;<br>        *it, err = Read(v.indexFile, sizeof(indexItem)<br>        <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123; <span class="hljs-keyword">break</span> &#125;<br>        v.index[it.key][it.alternateKey] = v.needleMeta<br>    &#125;<br>    <span class="hljs-keyword">var</span> offset <span class="hljs-keyword">uint64</span><br>    <span class="hljs-keyword">if</span> it == <span class="hljs-literal">nil</span> &#123; offset = <span class="hljs-number">0</span> &#125; <span class="hljs-keyword">else</span> &#123; offset = it.offset &#125;<br>    v.dataFile.Seek(offset)<br>    <span class="hljs-keyword">for</span> &#123;<br>        needle, offset, err := Read(v.dataFile, sizeof(needle))<br>        <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123; <span class="hljs-keyword">break</span> &#125;<br>        it := indexItem&#123;offset, needle.size, needle.key, needle.alternateKey&#125;<br>        v.indexCache = <span class="hljs-built_in">append</span>(v.indexCache, it)<br>        index[it.key][it.alternateKey] = it.needleMeta<br>    &#125;<br>    v.jornalFile.Seek(<span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">for</span> &#123;<br>        key, alternateKey, offset, err := Read(v.jornalFile, <span class="hljs-number">64</span>+<span class="hljs-number">32</span>+<span class="hljs-number">64</span>)<br>        <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123; <span class="hljs-keyword">break</span> &#125;<br>        meta, ok := v.index[key][alternateKey]<br>        <span class="hljs-keyword">if</span> ok &amp;&amp; meta.offset &lt;= offset &#123;<br>            <span class="hljs-built_in">delete</span>(v.index[key], alternateKey)<br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(v *Volume)</span> <span class="hljs-title">Read</span><span class="hljs-params">(key <span class="hljs-keyword">uint64</span>, alternateKey <span class="hljs-keyword">uint32</span>)</span> <span class="hljs-params">([]<span class="hljs-keyword">byte</span>, error)</span></span> &#123;<br>    meta, ok := v.index[key][alternateKey]<br>    <span class="hljs-keyword">if</span> !ok &#123; <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, errNotFound &#125;<br><br>    <span class="hljs-keyword">return</span> Pread(v.dataFile, meta.offset, meta.size)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(v *Volume)</span> <span class="hljs-title">Write</span><span class="hljs-params">(key <span class="hljs-keyword">uint64</span>, alternateKey <span class="hljs-keyword">uint32</span>, data []<span class="hljs-keyword">byte</span>)</span> <span class="hljs-title">error</span></span> &#123;<br>    n := Needle &#123;<br>        header:       [<span class="hljs-number">4</span>]<span class="hljs-keyword">byte</span>(<span class="hljs-string">&quot;NEED&quot;</span>),<br>        cookie:       rand.Uint64(),<br>        key:          key,<br>        alternateKey: alternateKey,<br>        flags:        <span class="hljs-number">0</span>,<br>        size:         <span class="hljs-built_in">len</span>(data),<br>        data:         data,<br>        footer:       [<span class="hljs-number">4</span>]<span class="hljs-keyword">byte</span>(<span class="hljs-string">&quot;DEEN&quot;</span>),<br>        checksum:     crc32(data),<br>    &#125;<br>    offset, err := v.dataFile.Write(binary.Encode(&amp;n))<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123; <span class="hljs-keyword">return</span> err &#125;<br>    v.index[key][alternateKey] = &amp;needleMeta&#123;<br>        offset: offset,<br>        size:   <span class="hljs-built_in">len</span>(data),<br>        flags:  <span class="hljs-number">0</span>,<br>    &#125;<br>    v.indexCache = <span class="hljs-built_in">append</span>(v.indexCache, indexItem&#123;...&#125;)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(v *Volume)</span> <span class="hljs-title">Delete</span><span class="hljs-params">(key <span class="hljs-keyword">uint64</span>, alternateKey <span class="hljs-keyword">uint32</span>)</span> <span class="hljs-title">error</span></span> &#123;<br>    meta, ok := v.index[key][alternateKey]<br>    <span class="hljs-keyword">if</span> !ok &#123; <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span> &#125;<br>    <span class="hljs-built_in">delete</span>(v.index[key], alternateKey)<br>    <span class="hljs-comment">// 这里需要持久化记录 offset，避免恢复 index file 的时候将删除操作之后新添加的同一个 key 的数据也删除</span><br>    <span class="hljs-keyword">return</span> v.journalFile.Write(binary.Encode(key, alternateKey, meta.offset))<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>为了避免垃圾数据过多，volume 还会根据一定条件触发 Compaction，回收已经被 Delete 或者被 Write 覆盖的数据。</p>
+<p>除了单个 volume，我们考虑一下如何在多个 Physical volume 之间保持一致性，Haystack 的答案似乎就是根本不管。由于 Write 和 Delete 非常幂等，并且 Photo Store 稍微不一致也不是特别要紧，Haystack 选择添加监控并且手动处理一些不一致的异常情况。</p>
+<h4 id="Haystack-Directory"><a href="#Haystack-Directory" class="headerlink" title="Haystack Directory"></a>Haystack Directory</h4><p>这是个 paper 笔墨很少，但十分重要的组件，它存储了所有的元信息，比如 volume ID 到 physical volume 位置的映射。它负责调度用户的请求，包括负载均衡写请求的 logical volume，负载均衡读请求打到哪个 physical volume 等的调度。为了避免一个 volume 无限增长造成运维困难，directory 会在 volume 大小达到一定容量时将 volume 标记为 read-only。</p>
+<h4 id="Pitchfork"><a href="#Pitchfork" class="headerlink" title="Pitchfork"></a>Pitchfork</h4><p>这个就是个健康检测后台任务，定期给所有存储节点发请求，观测到一个 volume 发生异常时标记为 read-only 并找运维人肉处理。这不会影响服务的整体可用性，因为写请求可以打到任意一个 volume。</p>
+<h2 id="F4"><a href="#F4" class="headerlink" title="F4"></a>F4</h2><p>F4 是 Facebook 在 Haystack 之后又搞的一个 Warm blob store，这个 warm 就比较魔性，让人想起星巴克的中杯、大杯和超大杯。不过事实上，F4 存储的确实不是冷存储，而是 Facebook 的一些 long tail 的照片，他们仍然会被获取，但是频率较低，也很少被覆盖或删除。相比于一些获取数据需要以天为单位的真正的 cold storage，F4 仍然要求对数据的获取在百毫秒级的时间内完成响应。</p>
+<h3 id="F4-和-Haystack-的关系"><a href="#F4-和-Haystack-的关系" class="headerlink" title="F4 和 Haystack 的关系"></a>F4 和 Haystack 的关系</h3><p>在 Haystack 中的数据因为三副本的原因有比较高的存储成本，F4 的设计目标主要是在保证数据安全的情况下降低数据的存储成本。一点可以利用的性质是从 Haystack 导入 F4 的照片很少会被删除，我们可以认为整个 Volume 都是不可变数据。</p>
+<p>Haystack 和 F4 的接口完全保证一致，通过 router tier 对用户隐藏具体实现。</p>
+<p>在数据导入的时间点上，Haystack 基于底层硬件设备（HDD）的读写能力和 BLOB 的使用情况统计进行设计，以 80 IOPS/TB 作为分界线对统计结果进行划分，并确定了三个月的分界线，即对于 Facebook 的大部分 BLOB 数据来说，在经过三个月的时间以后，访问频率就会降到显著低于 80 IOPS/TB，以至于使用廉价的 HDD 作为存储介质依然可以提供不影响用户体验的服务。这个设计过程也是充分地利用了软硬件一体的设计思想。</p>
+<h3 id="设计"><a href="#设计" class="headerlink" title="设计"></a>设计</h3><p>为了减少空间的使用，F4 引入了 EC（erasure coding）的技术。n:m 的 EC 可以将一份数据切为 n 份，并且构造 m 个冗余块。在这 (n+m) 个块中任意丢失 m 块数据，都能通过剩下 n 个块恢复。因此保障数据安全仅需要 (n+m)/n 的空间。Facebook 选择了 10:4 的比例，比起三副本来说，可以节约大量的空间。为了异地灾备，Facebook 在两个不同的集群之间再次通过对两个 Volume XOR 编码，并将这份冗余块备份到第三个集群中，通过 1.4 * 1.5 = 2.1 倍的空间完成了异地灾备级别的数据可靠性。</p>
+<p>在 F4 中，一个从 Haystack 导入的 Volume 前会经过 compaction。在 F4 中，Volume 里较小的 index file 仍然通过三副本，但是占 Volume 主体的 data file 完全通过 EC 来保障数据的可靠性和可用性。每个 data file 会按固定的大小（1GB 左右）切成连续的 data block，然后为每 n 个 data block（称为 strip），生成 m 个 parity block，不足 n 个的部分填零补全。每个 Strip 对应的 n+m 个 block 会被分布在不同的机架中，来保证机架级别的容错域。</p>
+<h3 id="架构-1"><a href="#架构-1" class="headerlink" title="架构"></a>架构</h3><p>架构上分为了五种类型的节点，并将这些节点打包成了一个 F4 Cell。</p>
+<p><img src="https://i.loli.net/2019/03/30/5c9f31fcbea4f.png" srcset="/img/loading.gif" lazyload alt="F4 Figure 8"></p>
+<ol>
+<li>Name Node：管理了 Volume -&gt; Strip -&gt; Block 的 Mapping 关系的 NameNode，这个功能非常简单直接忽略其实现。</li>
+<li>Storage Node：Storage Heavy 的节点，应该配有大量的 HDD，存储 Block，并管理对 Block 的读取操作。</li>
+<li>Backoff Node：CPU Heavy 的节点，在部分 data blocks 损坏时，在 parity blocks 继续读取数据对外提供服务保证可用性。</li>
+<li>Rebuilder Node：在有 data block 或者 parity block 损坏时，负责恢复数据。由于 F4 paper 中没有提到 Volume 如何从 Haystack 中入库到 F4 中，猜测初始化 parity block 这部分也是由 Rebuilder Node 负责。</li>
+<li>Coordinator Node：一个 Cell 的任务调度节点。进行一些定期检查，容错域调度等维护任务的调度。</li>
+</ol>
+<h3 id="Others"><a href="#Others" class="headerlink" title="Others"></a>Others</h3><h4 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h4><p>虽然 F4 不支持修改数据，但为了用户数据的隐私，允许对数据进行删除。</p>
+<p>在最开始的设计中，F4 的开发者计划在 F4 中保留 Haystack 中的 Jornal file 作为文件的删除记录，并保留 compaction 的策略。很快他们发现在 F4 设计中留这个可变的因素会大大增加设计复杂度。因此 F4 换了个删除的思路，将所有 BLOB 在导入 F4 前用每个 BLOB 唯一的秘钥加密，并将秘钥存在外部数据库中，如果需要删除数据，只需要在外部数据库中删除这个秘钥，就能让加密的 BLOB 无法通过任何手段恢复原来的数据，从逻辑上做到了 BLOB 的删除。</p>
+<h4 id="effective-replication-factor"><a href="#effective-replication-factor" class="headerlink" title="effective-replication-factor"></a>effective-replication-factor</h4><p>这个词翻不太来，大约是指备份的数据相比原始数据的比例。在 Haystack 中这个数字是 3.6，由三备份和 1.2 倍的 RAID 组成，在 F4 中，这个数字被降低到了 2.1。不过这个可以节约空间的前提是建立在 F4 中的数据删除比例比较少，根据 Facebook 的统计结果，对于大于三个月的 BLOB，这个结论成立。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Paper-Note/">Paper Note</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Storage/">Storage</a>
+                    
+                      <a class="hover-with-bg" href="/tags/System/">System</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/gogo-proto-timestamp/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">gogo/protobuf 的一个性能 bug</span>
+                        <span class="visible-mobile">Vorheriger</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/pyobject/">
+                        <span class="hidden-mobile">CPython 源码（一）： PyObject</span>
+                        <span class="visible-mobile">Nächster</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div class="cusdis" style="width:100%">
+    <div id="cusdis_thread"
+      data-host="https://blog-cusdis.vercel.app"
+      data-app-id="64ba9d39-bca2-4cd8-828e-22b73177630e"
+      data-page-id="4585c6100f3b6ec24aeb93ab8f3bcc72"
+      data-page-url="haystack-f4/"
+      data-page-title="[Paper Notes] Facebook Haystack and F4"
+      data-theme="auto"
+    >
+    </div>
+  </div>
+  <script type="text/javascript">
+    const src = 'https://blog-cusdis.vercel.app/js/widget/lang/zh-cn.js';
+    Fluid.utils.createScript(src);
+  </script>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#cusdis_thread', function() {
+      Fluid.utils.createScript("https://blog-cusdis.vercel.app/js/cusdis.es.js");
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Suchen</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">Stichwort</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script defer>
+      window.ga = window.ga || function () { (ga.q = ga.q || []).push(arguments) };
+      ga.l = +new Date;
+      ga('create', 'UA-120895130-2', 'auto');
+      ga('send', 'pageview');
+    </script>
+    <script async src='https://www.google-analytics.com/analytics.js'></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
