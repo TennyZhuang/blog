@@ -34,7 +34,7 @@ Napa 中直接导入数据的表称为 base table，而每个 base table 会有�
 
 1. Ingestion
     对应到 LSM Tree 里应该就是 write memtable + WAL 的过程，不过这里不需要写 memtable，这个类似 WAL 的结构叫做 non-queryable delta，由于更新是 apply 到 base table 上的，所以这个数据只需要写一份 base table，就可以认为 ingestion 成功了，保证了 durability。Ingestion 的过程也会在多个机房同步。
-2. Compation and view maintainance: Napa 的 Compaction 混合了好几个概念，我们一个个抽出来：
+2. Compation and view aintenance: Napa 的 Compaction 混合了好几个概念，我们一个个抽出来：
     * Non-queryable delta -> View Queryable delta
         根据我们上面的描述，Non-queryable delta 只是 base table 的 WAL，那么我们首先需要把这个 log 中的每一项更新读出来，并根据每个 Materialized view 定义的算子进行转换，确定是否要 apply 到对应的 view 中。同时我们也会做一些排序、索引的工作，最后生成的是 n 个 queryable delta（对应于 LSM 中 SST 的概念），n 为需要更新的 view 的数量。
     * Queryable delta merge: 与 LSM 的 merge 完全相同，定期将一部分 Queryable delta 合并为一个更大的 Queryable delta。
@@ -61,14 +61,14 @@ QT 是一个表示 freshness 的概念，Now() - QT 代表了 frsehness 的 boun
 要 data freshness，但 query 可以慢点儿
 
 1. 少建 view，慢慢查
-2. 少做 view maintainance task（delta file 会特别多）
+2. 少做 view aintenance task（delta file 会特别多）
 3. QT 设置得足够高（查询时会合并所有的 delta file 中的结果）
 
 ### tradeoff data freshness
 
 需要 query performance，但是读到的数据可以旧点儿
 
-1. 少做 view maintainance（delta file 会特别多）
+1. 少做 view aintenance（delta file 会特别多）
 2. QT 设置得足够低（查询时需要合并的 delta file 特别少）
 
 ### tradeoff resource costs
@@ -80,7 +80,7 @@ QT 是一个表示 freshness 的概念，Now() - QT 代表了 frsehness 的 boun
 没有什么是充钱解决不了的。
 
 1. 多建 view。
-2. 频繁做 view maintainance。
+2. 频繁做 view aintenance。
 3. QT 设置得足够高
 
 
