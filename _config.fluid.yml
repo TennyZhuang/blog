@@ -767,7 +767,7 @@ twikoo:
 # See https://cusdis.com
 cusdis:
   host: https://blog-cusdis.vercel.app
-  appID: 64ba9d39-bca2-4cd8-828e-22b73177630e
+  app_id: 64ba9d39-bca2-4cd8-828e-22b73177630e
   lang: zh-cn
 
 #---------------------------
