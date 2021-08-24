@@ -17,6 +17,6 @@
     "hexo-renderer-marked": "^2.0.0",
     "hexo-renderer-stylus": "^0.3.1",
     "hexo-server": "^0.3.3",
-    "hexo-theme-fluid": "github:TennyZhuang/hexo-theme-fluid#open-graph-patch-from-sinchang"
+    "hexo-theme-fluid": "github:fluid-dev/hexo-theme-fluid#develop"
   }
 }
