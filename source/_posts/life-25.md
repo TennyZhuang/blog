@@ -7,8 +7,9 @@ tags:
 
 # 25 岁生日 —— 再启航
 
+![生日快乐](https://user-images.githubusercontent.com/9161438/130897365-6a0e684d-8080-4dce-ac62-e95212246e46.png)
 
-![一条推特](https://user-images.githubusercontent.com/9161438/130823941-5360ab01-ed1a-4220-ab45-922cc0751ad3.png)
+<!-- ![一条推特](https://user-images.githubusercontent.com/9161438/130823941-5360ab01-ed1a-4220-ab45-922cc0751ad3.png) -->
 
 即将迎来 25 岁生日，随便记录一些想法
 
