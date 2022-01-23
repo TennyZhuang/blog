@@ -4,7 +4,7 @@ specifiers:
   hexo: ^5.4.1
   hexo-deployer-git: ^3.0.0
   hexo-front-matter: ^3.0.0
-  hexo-generator-archive: ^0.1.5
+  hexo-generator-archive: ^1.0.0
   hexo-generator-category: ^1.0.0
   hexo-generator-feed: ^3.0.0
   hexo-generator-index: ^2.0.0
@@ -18,7 +18,7 @@ dependencies:
   hexo: 5.4.1
   hexo-deployer-git: 3.0.0
   hexo-front-matter: 3.0.0
-  hexo-generator-archive: 0.1.5
+  hexo-generator-archive: 1.0.0
   hexo-generator-category: 1.0.0
   hexo-generator-feed: 3.0.0
   hexo-generator-index: 2.0.0
@@ -566,11 +566,11 @@ packages:
       hexo-util: 2.5.0
     dev: false
 
-  /hexo-generator-archive/0.1.5:
-    resolution: {integrity: sha512-jPbMtibqkJnAX3hCwhYhK3r6cqy9OKQsVEScjk7LDok+iPmFmkKCNdU/OccxGe1CWAZpT+ta4+LknwNeHG2G4w==}
+  /hexo-generator-archive/1.0.0:
+    resolution: {integrity: sha512-24TeanDGpMBUIq37DHpSESQbeN6ssZ06edsGSI76tN4Yit50TgsgzP5g5DSu0yJk0jUtHJntysWE8NYAlFXibA==}
+    engines: {node: '>=8.6.0'}
     dependencies:
-      hexo-pagination: 0.0.2
-      object-assign: 2.1.1
+      hexo-pagination: 1.0.0
     dev: false
 
   /hexo-generator-category/1.0.0:
@@ -617,13 +617,6 @@ packages:
     engines: {node: '>=10.13.0'}
     dependencies:
       chalk: 4.1.2
-    dev: false
-
-  /hexo-pagination/0.0.2:
-    resolution: {integrity: sha1-jPRwx9sN5bGKOSanbesZQBXffys=}
-    engines: {node: '>= 0.10.0'}
-    dependencies:
-      utils-merge: 1.0.1
     dev: false
 
   /hexo-pagination/1.0.0:
@@ -1025,11 +1018,6 @@ packages:
 
   /nwsapi/2.2.0:
     resolution: {integrity: sha512-h2AatdwYH+JHiZpv7pt/gSX1XoRGb7L/qSIeuqA6GwYoF9w1vP1cw42TO0aI2pNyshRK5893hNSl+1//vHK7hQ==}
-    dev: false
-
-  /object-assign/2.1.1:
-    resolution: {integrity: sha1-Q8NuXVaf+OSBbE76i+AtJpZ8GKo=}
-    engines: {node: '>=0.10.0'}
     dev: false
 
   /on-finished/2.3.0:
