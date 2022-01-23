@@ -50,7 +50,7 @@ impl ABuilder {
             b: self.b,
             c: self.c,
         }
-    }}
+    }
 }
 
 #[cfg(test)]
