@@ -16,6 +16,7 @@
     "hexo-generator-tag": "^1.0.0",
     "hexo-renderer-marked": "^4.1.0",
     "hexo-server": "^3.0.0",
-    "hexo-theme-fluid": "github:fluid-dev/hexo-theme-fluid#develop"
+    "hexo-theme-fluid": "github:fluid-dev/hexo-theme-fluid#develop",
+    "nunjucks": "^3.2.3"
   }
 }

@@ -12,6 +12,7 @@ specifiers:
   hexo-renderer-marked: ^4.1.0
   hexo-server: ^3.0.0
   hexo-theme-fluid: github:fluid-dev/hexo-theme-fluid#develop
+  nunjucks: ^3.2.3
 
 dependencies:
   hexo: 5.4.1
@@ -24,7 +25,8 @@ dependencies:
   hexo-generator-tag: 1.0.0
   hexo-renderer-marked: 4.1.0
   hexo-server: 3.0.0
-  hexo-theme-fluid: github.com/fluid-dev/hexo-theme-fluid/0d2bfdb58bde999fcab08fe1b0374cc69618884e
+  hexo-theme-fluid: github.com/fluid-dev/hexo-theme-fluid/0d2bfdb58bde999fcab08fe1b0374cc69618884e_nunjucks@3.2.3
+  nunjucks: 3.2.3
 
 packages:
 
@@ -1425,11 +1427,14 @@ packages:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
     dev: false
 
-  github.com/fluid-dev/hexo-theme-fluid/0d2bfdb58bde999fcab08fe1b0374cc69618884e:
+  github.com/fluid-dev/hexo-theme-fluid/0d2bfdb58bde999fcab08fe1b0374cc69618884e_nunjucks@3.2.3:
     resolution: {tarball: https://codeload.github.com/fluid-dev/hexo-theme-fluid/tar.gz/0d2bfdb58bde999fcab08fe1b0374cc69618884e}
+    id: github.com/fluid-dev/hexo-theme-fluid/0d2bfdb58bde999fcab08fe1b0374cc69618884e
     name: hexo-theme-fluid
     version: 1.8.14
     engines: {node: '>=8.10.0'}
     peerDependencies:
       nunjucks: ^3.0.0
+    dependencies:
+      nunjucks: 3.2.3
     dev: false
