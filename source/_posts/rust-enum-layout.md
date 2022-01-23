@@ -88,7 +88,7 @@ print_memory(&Attr::Shape(257, 258));
 
 P 是常见的智能指针类型，包括 `&`/`&mut`/`Box`。这应该是关于 enum layout 优化里最著名的一个例子了。Rust 推荐使用 `Option<P<T>>` 来处理可空指针，这实现了 [null safety][null safety wiki].
 
-[null safety wiki](https://en.wikipedia.org/wiki/Void_safety)
+[null safety wiki]: https://en.wikipedia.org/wiki/Void_safety
 
 `Option<T>` 在 rust 中被表示为一种 enum：
 
