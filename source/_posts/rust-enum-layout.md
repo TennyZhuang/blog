@@ -184,8 +184,6 @@ print_memory(&(None as Option<std::cmp::Ordering>));
 // [2]
 ```
 
-（一个题外话，意外发现 `Less` 被定义为 255，意义不明，感觉对 switch 优化可能不太友好）
-
 ## Enum
 
 事实上，编译器并没有对 bool、Ordering 进行特判，任何种类少于 256 的 enum 本身都满足被优化的条件，即 type tag 里会有 (256 - kinds) 个空位。
