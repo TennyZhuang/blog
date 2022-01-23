@@ -3,7 +3,7 @@ lockfileVersion: 5.3
 specifiers:
   hexo: ^5.0.0
   hexo-deployer-git: ^3.0.0
-  hexo-front-matter: ^1.0.0
+  hexo-front-matter: ^3.0.0
   hexo-generator-archive: ^0.1.4
   hexo-generator-category: ^0.1.3
   hexo-generator-feed: ^3.0.0
@@ -18,7 +18,7 @@ specifiers:
 dependencies:
   hexo: registry.nlark.com/hexo/5.4.0
   hexo-deployer-git: registry.npmmirror.com/hexo-deployer-git/3.0.0
-  hexo-front-matter: registry.nlark.com/hexo-front-matter/1.0.0
+  hexo-front-matter: 3.0.0
   hexo-generator-archive: registry.nlark.com/hexo-generator-archive/0.1.5
   hexo-generator-category: registry.nlark.com/hexo-generator-category/0.1.3
   hexo-generator-feed: registry.npmmirror.com/hexo-generator-feed/3.0.0
@@ -28,14 +28,47 @@ dependencies:
   hexo-renderer-marked: registry.nlark.com/hexo-renderer-marked/2.0.0
   hexo-renderer-stylus: registry.nlark.com/hexo-renderer-stylus/0.3.3
   hexo-server: registry.npmmirror.com/hexo-server/0.3.3
-  hexo-theme-fluid: github.com/fluid-dev/hexo-theme-fluid/1fe80a5599c60fc5e7ba18f0ee269fed4d40166d
+  hexo-theme-fluid: github.com/fluid-dev/hexo-theme-fluid/0d2bfdb58bde999fcab08fe1b0374cc69618884e
 
 packages:
 
-  github.com/fluid-dev/hexo-theme-fluid/1fe80a5599c60fc5e7ba18f0ee269fed4d40166d:
-    resolution: {tarball: https://codeload.github.com/fluid-dev/hexo-theme-fluid/tar.gz/1fe80a5599c60fc5e7ba18f0ee269fed4d40166d}
+  /argparse/2.0.1:
+    resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
+    dev: false
+
+  /fsevents/2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /hexo-front-matter/2.0.0:
+    resolution: {integrity: sha512-IR3tjAyK2Ga/0a/WDAoNy5+n3ju2/mkuAsCDEeGgGLf5+7kkiOkkG/FrnueuYgz0h2MPfWDLBiDsSTCmB0sLCA==}
+    engines: {node: '>=10.13.0'}
+    dependencies:
+      js-yaml: registry.nlark.com/js-yaml/3.14.1
+    dev: false
+
+  /hexo-front-matter/3.0.0:
+    resolution: {integrity: sha512-hSQTPUmB/BCe1BFYmXRkPyLk8rqbBqHCQq+rjwwOJuEfOADrFaVK2VPZb90tJzPyXE1xSxpgCxE/AZq0CyTVwg==}
+    engines: {node: '>=12.13.0'}
+    dependencies:
+      js-yaml: 4.1.0
+    dev: false
+
+  /js-yaml/4.1.0:
+    resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}
+    hasBin: true
+    dependencies:
+      argparse: 2.0.1
+    dev: false
+
+  github.com/fluid-dev/hexo-theme-fluid/0d2bfdb58bde999fcab08fe1b0374cc69618884e:
+    resolution: {tarball: https://codeload.github.com/fluid-dev/hexo-theme-fluid/tar.gz/0d2bfdb58bde999fcab08fe1b0374cc69618884e}
     name: hexo-theme-fluid
-    version: 1.8.12
+    version: 1.8.14
     engines: {node: '>=8.10.0'}
     peerDependencies:
       nunjucks: ^3.0.0
@@ -252,7 +285,7 @@ packages:
       normalize-path: registry.nlark.com/normalize-path/3.0.0
       readdirp: registry.nlark.com/readdirp/3.6.0
     optionalDependencies:
-      fsevents: registry.nlark.com/fsevents/2.3.2
+      fsevents: 2.3.2
     dev: false
 
   registry.nlark.com/color-convert/2.0.1:
@@ -395,6 +428,11 @@ packages:
     name: debug
     version: 4.3.2
     engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
     dependencies:
       ms: registry.npmmirror.com/ms/2.1.2
     dev: false
@@ -560,15 +598,6 @@ packages:
     version: 1.0.0
     dev: false
 
-  registry.nlark.com/fsevents/2.3.2:
-    resolution: {integrity: sha1-ilJveLj99GI7cJ4Ll1xSwkwC/Ro=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/fsevents/download/fsevents-2.3.2.tgz}
-    name: fsevents
-    version: 2.3.2
-    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
-    requiresBuild: true
-    dev: false
-    optional: true
-
   registry.nlark.com/function-bind/1.1.1:
     resolution: {integrity: sha1-pWiZ0+o8m6uHS7l3O3xe3pL0iV0=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/function-bind/download/function-bind-1.1.1.tgz}
     name: function-bind
@@ -623,24 +652,6 @@ packages:
       minimist: registry.nlark.com/minimist/1.2.5
       resolve: registry.nlark.com/resolve/1.20.0
       tildify: registry.nlark.com/tildify/2.0.0
-    dev: false
-
-  registry.nlark.com/hexo-front-matter/1.0.0:
-    resolution: {integrity: sha1-C0ixwe0UPoyyWzsiOpA3OF2RBlU=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/hexo-front-matter/download/hexo-front-matter-1.0.0.tgz}
-    name: hexo-front-matter
-    version: 1.0.0
-    engines: {node: '>=8.6.0'}
-    dependencies:
-      js-yaml: registry.nlark.com/js-yaml/3.14.1
-    dev: false
-
-  registry.nlark.com/hexo-front-matter/2.0.0:
-    resolution: {integrity: sha1-A/Oanu2xbFRI27O+x9/yxOIkAGw=, registry: https://registry.npm.taobao.org/, tarball: https://registry.nlark.com/hexo-front-matter/download/hexo-front-matter-2.0.0.tgz}
-    name: hexo-front-matter
-    version: 2.0.0
-    engines: {node: '>=10.13.0'}
-    dependencies:
-      js-yaml: registry.nlark.com/js-yaml/3.14.1
     dev: false
 
   registry.nlark.com/hexo-fs/3.1.0:
@@ -738,6 +749,8 @@ packages:
     dependencies:
       nib: registry.nlark.com/nib/1.1.2
       stylus: registry.nlark.com/stylus/0.54.8
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   registry.nlark.com/hexo-util/1.0.0:
@@ -782,7 +795,7 @@ packages:
       bluebird: registry.nlark.com/bluebird/3.7.2
       chalk: registry.nlark.com/chalk/4.1.2
       hexo-cli: registry.nlark.com/hexo-cli/4.3.0
-      hexo-front-matter: registry.nlark.com/hexo-front-matter/2.0.0
+      hexo-front-matter: 2.0.0
       hexo-fs: registry.nlark.com/hexo-fs/3.1.0
       hexo-i18n: registry.nlark.com/hexo-i18n/1.0.0
       hexo-log: registry.npmmirror.com/hexo-log/2.0.0
@@ -1048,6 +1061,8 @@ packages:
     version: 1.1.2
     dependencies:
       stylus: registry.nlark.com/stylus/0.54.5
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   registry.nlark.com/nice-try/1.0.5:
@@ -1088,6 +1103,9 @@ packages:
     hasBin: true
     peerDependencies:
       chokidar: ^3.3.0
+    peerDependenciesMeta:
+      chokidar:
+        optional: true
     dependencies:
       a-sync-waterfall: registry.nlark.com/a-sync-waterfall/1.0.1
       asap: registry.nlark.com/asap/2.0.6
@@ -1432,6 +1450,8 @@ packages:
       mkdirp: registry.nlark.com/mkdirp/0.5.5
       sax: registry.nlark.com/sax/0.5.8
       source-map: registry.nlark.com/source-map/0.1.43
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   registry.nlark.com/stylus/0.54.8:
