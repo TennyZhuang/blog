@@ -243,7 +243,22 @@ print_memory(&Some(A(1, 1)));
 
 A 和 B 由于 padding，都需要占用 16 个 byte，而 `Option<B>` 由于存在一个 bool 字段 `.2`，tag 被优化进 bool 了，因此也只需要 16 个 byte。反而 `Option<A>` 实打实地用了 24 个 byte。
 
-一个很容易想到的优化是，使用 padding 中未定义的内存来存储 type tag，然而比较遗憾的是，在 padding 中存储的数据在 copy 等行为下都是未定义行为。这也导致了一个比较滑稽的结果，多存了一个字段，`Option` 占用的空间反而减少了。
+一个很容易想到的优化是，使用 padding 中未定义的内存来存储 type tag。比较遗憾的是，A 的 layout 是在编译 A 自身时确定的，而 `Option<A>` 在 `A` 的 padding 中存储的数据是未定义行为。这也导致了一个比较滑稽的结果，多存了一个字段，`Option` 占用的空间反而减少了。
+
+当然，使用 padding 存储数据是完全可能的，但前提是不能影响子数据结构的 memory layout。如果我们将 `A` 在 `Option` 中[手动展开][playground2]：
+
+```rust
+use std::mem::size_of;
+struct A(i64, i8);
+enum OptionA { Some(i64, i8), None }
+dbg!(size_of::<A>()); // 16
+dbg!(size_of::<Option<A>>()); // 24
+dbg!(size_of::<OptionA>()); // 16
+```
+
+这种情况下，由于 OptionA 的数据直接保存在 Some 内，实例化的时候完全可以使用 padding 存储 type tag，而不会引起潜在的未定义行为。
+
+[playground2]: https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=964744f99048e78207f6ee120329b9ce
 
 ## 优化自定义结构的可能性
 
