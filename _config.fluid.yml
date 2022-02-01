@@ -318,6 +318,7 @@ navbar:
     - { key: "订阅", link: "/atom.xml", icon: "iconfont icon-rss" }
 #    - { key: "about", link: "/about/", icon: "iconfont icon-user-fill" }
     #- { key: "links", link: "/links/", icon: "iconfont icon-link-fill" }
+    - { key: "笔记", link: "/notes/", icon: "iconfont icon-note" }
 
 # 搜索功能，基于 hexo-generator-search 插件，若已安装其他搜索插件请关闭此功能，以避免生成多余的索引文件
 # Search feature, based on hexo-generator-search. If you have installed other search plugins, please disable this feature to avoid generating redundant index files
