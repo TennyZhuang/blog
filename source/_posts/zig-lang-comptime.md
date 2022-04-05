@@ -8,16 +8,11 @@ tags:
 
 在很长的一段时间里，系统级的编程语言只有 C 与 C++，使用其中任何一种都不是愉快的体验，这里不作展开。现在许多新的系统项目都使用 Rust 开发。然而这些都不是本文的重点，最近我接触了一个新的系统编程语言 -- [Zig](https://ziglang.org)，今天分享一下试玩的体验。
 
+![Zig](https://user-images.githubusercontent.com/9161438/161515187-07d053b2-7448-4cd9-8338-776896a2f7fa.svg)
+
 <!-- more -->
 
-
-
 ---
-
-
-
-
-![Zig](https://user-images.githubusercontent.com/9161438/161515187-07d053b2-7448-4cd9-8338-776896a2f7fa.svg)
 
 ## 简介
 
