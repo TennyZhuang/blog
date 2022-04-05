@@ -223,7 +223,7 @@ const DataType = union(enum) {
 
 ### std.MultiArrayList
 
-事实上，Zig 已经在标准库里内置了 Multi-dimentional FixedArray 的东西，且非常灵活。
+事实上，Zig 已经在标准库里内置了类似 Multi-dimentional FixedArray 的东西，且非常灵活。
 
 ```zig
     const ally = testing.allocator;
@@ -257,7 +257,7 @@ const DataType = union(enum) {
     });
 ```
 
-可以看到，使用体验都跟 `ArrayList` 几乎完全一模一样，但是内部确实按字段列存储的，它的内部实现大量使用了编译期反射生成友好的代码。这对 [Data-oriented Programming](https://en.wikipedia.org/wiki/Data-oriented_design) 是非常友好的。
+可以看到，使用体验都跟 `ArrayList` 几乎完全一模一样，但是内部确实按字段列存储的，它的内部实现大量使用了编译期反射生成友好的代码。这对 [Data-oriented Programming](https://en.wikipedia.org/wiki/Data-oriented_design) 的场景是非常友好的。
 
 
 
