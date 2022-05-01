@@ -4,6 +4,7 @@ date: 2022-04-30 15:40:38
 tags:
 - Programming
 - Streaming System
+- Database
 - RisingWave
 ---
 
@@ -11,9 +12,9 @@ tags:
 
 [RisingWave](https://github.com/singularity-data/risingwave) 是近期开源的一款 Rust 写的云原生流数据库产品。今天根据下图简单介绍一下 RisingWave 中的状态管理机制：
 
-![RisingWave StateStore](https://user-images.githubusercontent.com/9161438/166149499-8e95cc67-5841-47d0-8ddb-92af9ee7d269.png)
-
 <!-- more -->
+
+![RisingWave StateStore](https://user-images.githubusercontent.com/9161438/166149499-8e95cc67-5841-47d0-8ddb-92af9ee7d269.png)
 
 ## Hummock Overview
 
