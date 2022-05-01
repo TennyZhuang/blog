@@ -7,7 +7,7 @@ tags:
 - RisingWave
 ---
 
-![RisingWave](https://github.com/singularity-data/risingwave/raw/main/docs/images/logo-title.svg)
+![RisingWave](https://user-images.githubusercontent.com/9161438/166149937-8d1e7c1e-6355-4dae-9488-fb1ced832686.png)
 
 [RisingWave](https://github.com/singularity-data/risingwave) 是近期开源的一款 Rust 写的云原生流数据库产品。今天根据下图简单介绍一下 RisingWave 中的状态管理机制：
 
