@@ -47,7 +47,7 @@ message Barrier {
 
 对于 DAG 中间的任何一个算子，如果收到了一个 barrier，需要依次做一些事情：
 
-1. 如果是一个多输入流的算子（Join、Union)，那么直到收集齐所有输入流的同一个 barrier 以后才处理。
+1. 如果是一个多输入流的算子（Join、Union)，那么需要等待其它流的 barrier，直到收集齐所有输入流的同一个 barrier 以后才处理。
 2. 如果有需要操作的 mutation（用于 scale-out，create mview，drop mview），那么 apply 对应的 conf change。
 3. **dump local state (async checkpoint)**
 
