@@ -11,7 +11,7 @@ tags:
 
 [RisingWave](https://github.com/singularity-data/risingwave) 是近期开源的一款 Rust 写的云原生流数据库产品。今天根据下图简单介绍一下 RisingWave 中的状态管理机制：
 
-![RisingWave StateStore](https://user-images.githubusercontent.com/9161438/166138021-c7077f83-6144-4297-a42c-059954931df4.png)
+![RisingWave StateStore](https://user-images.githubusercontent.com/9161438/166149499-8e95cc67-5841-47d0-8ddb-92af9ee7d269.png)
 
 <!-- more -->
 
@@ -31,7 +31,7 @@ tags:
 
 RisingWave 是一个基于固定 epoch 的 partial synchronized system。每隔一个固定的时间，中心的 meta 节点会产生一个 epoch，并会向整个 DAG 的所有 source 节点发起 `InjectBarrier` 请求。source 节点收到 barrier 后，将其注入到当前数据流的一个切片。
 
-![epoch](https://user-images.githubusercontent.com/9161438/166149113-984b14d5-75b6-4ead-94aa-aa63df14a21a.png)
+![epoch](https://user-images.githubusercontent.com/9161438/166149434-ca5e7db1-ebbc-452d-af5f-2a9e5bf5533b.png)
 
 ```proto
 message Barrier {
@@ -104,6 +104,6 @@ Compaction 主要有以下目的：
 
 本文简单介绍了 RisingWave State Store 的基本架构和设计上的 trade off。核心思路是尽可能利用云上 shared storage 的能力，享受 remote state 的优势 -- scalability 和更强的弹性扩缩容能力，又希望在 hot state 较小的场景依然能达到 local state 的性能。当然这一切并非毫无代价，而在云原生的架构下，我们可以让这个 trade-off 由用户来选择。
 
-![ ](https://user-images.githubusercontent.com/9161438/166139768-89e161d7-922a-40a2-a508-54da91e83bbd.png)
+![ ](https://user-images.githubusercontent.com/9161438/166149580-65a119cf-5071-42ae-89cb-443686365df7.png)
 
 RisingWave 是一个活跃开发的项目，设计也在活跃迭代中，目前我们也在上述设计之上引入了 Shared State，以减少存储的状态，之后有机会展开介绍。更多的设计文档，可以在 [RisingWave 的 repo](https://github.com/singularity-data/risingwave/tree/main/docs) 找到。
