@@ -19,6 +19,6 @@
     "hexo-renderer-stylus": "^2.0.1",
     "hexo-server": "^3.0.0",
     "hexo-theme-fluid": "github:fluid-dev/hexo-theme-fluid#develop",
-    "nunjucks": "^3.2.3"
+    "nunjucks": "^3.2.4"
   }
 }
