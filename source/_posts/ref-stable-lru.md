@@ -96,7 +96,7 @@ let x = cache.get(&"a").unwrap().as_str();
 let y = cache.get(&"b").unwrap().as_str();
 let z = cache.get(&"c").unwrap().as_str();
 cache.put("a", "b", &mut cache);
-[x, y, z].join(" "); // Boom
+[x, y, z].join(" ");
 ```
 
 由于 put 需要 &mut Token 作为参数，而 &Token 已经被 vals 捕获了，这里会编译失败。
