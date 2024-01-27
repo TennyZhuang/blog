@@ -198,7 +198,11 @@ where
 
 ![cpp references/iterators invalidation](https://s2.loli.net/2024/01/26/N8jMQfDwR3KsUqH.png)
 
-这个 feature 是 C++ UB 的重灾区之一，主要原因是只在 doc 里提到，完全没法在签名上约束。而 Rust 完全阻止了相关的行为，Rust 标准库的所有 collection，只要你持有任何一个 reference，你都无法对这个结构进行任何操作，这其实浪费了 collection 的很多特性。这篇文章的设计思路是将 collection 的操作权限分散到各个 Perm 上，从而提供细粒度的读写权限控制，这个思想高度借鉴了 [Ghost Cell][ghost_cell]。用类似的思路，我们也可以实现一些其他常用的数据结构，例如持有引用的同时可以 push 的 `VecDeque`。
+这个 feature 是 C++ UB 的重灾区之一，主要原因是只在 doc 里提到，完全没法在签名上约束。而 Rust 完全阻止了相关的行为，Rust 标准库的所有 collection，只要你持有任何一个 reference，你都无法对这个结构进行任何操作，这其实浪费了 collection 的很多特性。
+
+这篇文章的设计思路是将 collection 的操作权限分散到各个 Perm 上，从而提供细粒度的读写权限控制，这个思想高度借鉴了 Ghost Cell。用类似的思路，我们也可以实现一些其他常用的数据结构，例如持有引用的同时可以 push 的 VecDeque。基于这个思路，我们既提供了类似 C++ STL 一样强大的 reference stability，又可以完全使用 safe rust 调用，从而避免了 UB。当然结果就是我们的 API 相对比较复杂。
+
+目前我认为这个权限分离的方案并不适合作为标准库提供的 library，因为 rust 还可以进一步探索如何修改语言，让 Ghost Cell 风格的 API 更易用。但这个方案可以实现一些大型库的基础设施，提供 safe API 给上层调用。
 
 [cppreference_container_stability]: https://en.cppreference.com/w/cpp/container#Iterator_invalidation
 [lru-rs]:https://crates.io/crates/lru
