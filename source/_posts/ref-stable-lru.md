@@ -81,7 +81,6 @@ pub fn get<'cache, 'key, 'token>(&'cache self, k: &'key K, token: &'token Token)
 let x = cache.get(&"a").unwrap().as_str();
 let y = cache.get(&"b").unwrap().as_str();
 let z = cache.get(&"c").unwrap().as_str();
-[x, y, z].join(" ");
 cache.put("a", "b".to_string());
 [x, y, z].join(" ");
 ```
