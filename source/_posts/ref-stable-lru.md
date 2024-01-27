@@ -30,22 +30,27 @@ impl<K: Eq + Hash, V> LruCache<K, V> {
 <!-- more -->
 
 ```rust
-let vals: Vec<_> = keys.iter().filter_map(|k| cache.get(k)).collect();
+let x = cache.get(&"a").unwrap().as_str();
+let y = cache.get(&"b").unwrap().as_str();
+let z = cache.get(&"c").unwrap().as_str();
+[x, y, z].join(" ");
 ```
 
 我们会得到如下报错：
 
 ```
-error: captured variable cannot escape `FnMut` closure body
-let vals: Vec<_> = keys.iter().filter_map(|k| cache.get(k)).collect();
-   |                                                 - -----^^^^^^^
-   |                                                 | |
-   |                                                 | returns a reference to a captured variable which escapes the closure body
-   = note: `FnMut` closures only have access to their captured variables while they are executing...
-   = note: ...therefore, they cannot allow references to captured variables to escape
+error[E0499]: cannot borrow `cache` as mutable more than once at a time
+   |
+20 |     let x = cache.get(&"a").unwrap().as_str();
+   |             ----- first mutable borrow occurs here
+21 |     let y = cache.get(&"b").unwrap().as_str();
+22 |     let z = cache.get(&"c").unwrap().as_str();
+   |             ^^^^^ second mutable borrow occurs here
+23 |     [x, y, z].join(" ");
+   |      - first borrow later used here
 ```
 
-很显然，`LruCache::get` 使用了 `&mut cache` 导致 `&mut cache` 被 closure 捕获，而多个 `&mut cache` 同时存在违背了 Rust 的 borrow checker。
+很显然，`LruCache::get` 使用了 `&mut cache` 导致 `x` 已经占有了 `cache` 的可变引用，而后面尝试创建 `y`、`z` 多个 `&mut cache` 同时存在违背了 Rust 的 borrow checker。
 
 那么 Borrowck 认为是错的，就是错的吗？如果我们再看一眼上图演示的 `LruCache` 在 `get` 过程中的调整，我们会发现这个限制是完全没有道理的。`get` 确实会调整 `LruCache` 的结构，但并不会影响 `val` 的指针，第二次 `get` 完全不会让第一个 `get` 获得的 `&V` 失效。
 
@@ -73,11 +78,12 @@ pub fn get<'cache, 'key, 'token>(&'cache self, k: &'key K, token: &'token Token)
 这样我们之前同时持有多个 `&V` 的代码就能编译通过了！Happy Ending？
 
 ```rust
-let vals: Vec<_> = keys.iter().filter_map(|k| cache.get(k, &token)).collect();
-cache.put("a", "b");
-for val in vals {
-    dbg!(val);  // Boom
-}
+let x = cache.get(&"a").unwrap().as_str();
+let y = cache.get(&"b").unwrap().as_str();
+let z = cache.get(&"c").unwrap().as_str();
+[x, y, z].join(" ");
+cache.put("a", "b".to_string());
+[x, y, z].join(" ");
 ```
 
 我们很快发现在修改了 `get` 的签名后，我们在 safe rust 中，在 `&V` 仍然合法时调用 `push`。这个方法会覆盖现有的 value，或者淘汰最旧的 entry。被覆盖的 entry 会在返回后被 drop。在此之后我们继续访问 `vals` 就会导致 UB。办法也非常简单，我们只需要修改 `put` 的签名即可。
@@ -87,11 +93,11 @@ pub fn put<'cache,'token>(&mut self, k: K, v: V, token: &'token mut Token) -> Op
 ```
 
 ```rust
-let vals: Vec<_> = keys.iter().filter_map(|k| cache.get(k, &token)).collect();
+let x = cache.get(&"a").unwrap().as_str();
+let y = cache.get(&"b").unwrap().as_str();
+let z = cache.get(&"c").unwrap().as_str();
 cache.put("a", "b", &mut cache);
-for val in vals {
-    dbg!(val);  // Boom
-}
+[x, y, z].join(" "); // Boom
 ```
 
 由于 put 需要 &mut Token 作为参数，而 &Token 已经被 vals 捕获了，这里会编译失败。
@@ -156,11 +162,12 @@ where
 ```rust
 new_lru_cache(|mut perm, mut cache| {
     cache.put("a", "b".to_string(), &mut perm);
-    let keys = ["a", "b"];
-    let vals: Vec<_> = keys.iter().filter_map(|k| cache.get(k, &perm)).collect();
-    for val in vals {
-        dbg!(val);
-    }
+    cache.put("b", "c".to_string(), &mut perm);
+    cache.put("c", "d".to_string(), &mut perm);
+    let x = cache.get(&"a").unwrap().as_str();
+    let y = cache.get(&"b").unwrap().as_str();
+    let z = cache.get(&"c").unwrap().as_str();
+    [x, y, z].join(" ");
 });
 ```
 
@@ -169,12 +176,13 @@ new_lru_cache(|mut perm, mut cache| {
 ```rust
 new_lru_cache(|mut perm, mut cache| {
     cache.put("a", "b".to_string(), &mut perm);
-    let keys = ["a", "b"];
-    let vals: Vec<_> = keys.iter().filter_map(|k| cache.get(k, &perm)).collect();
+    cache.put("b", "c".to_string(), &mut perm);
+    cache.put("c", "d".to_string(), &mut perm);
+    let x = cache.get(&"a").unwrap().as_str();
+    let y = cache.get(&"b").unwrap().as_str();
+    let z = cache.get(&"c").unwrap().as_str();
     drop(cache);
-    for val in vals {
-        dbg!(val); // Boom
-    }
+    [x, y, z].join(" "); // Boom
 });
 ```
 
@@ -188,6 +196,20 @@ where
 
 这里要求 `new_lru_cache` 接受的回调必须将 `perm` 和 `value` 的所有权返回再统一 drop。由于 `'brand` 的唯一性，回调必须将变量返回而无法提前销毁。
 
+```rust
+new_lru_cache(|mut perm, mut cache| {
+    cache.put("a", "b".to_string(), &mut perm);
+    cache.put("b", "c".to_string(), &mut perm);
+    cache.put("c", "d".to_string(), &mut perm);
+    let x = cache.get(&"a").unwrap().as_str();
+    let y = cache.get(&"b").unwrap().as_str();
+    let z = cache.get(&"c").unwrap().as_str();
+    [x, y, z].join(" ");
+    
+    (perm, cache)
+});
+```
+
 至此我们的接口设计就大功告成了，具体实现几乎可以完全从 [lru][lru-rs] copy，反正 unsafe 可以操纵一切，我们只要保证上层接口足够安全就行。
 
 我实现了一个简单的完整可用版本，开源在 <https://github.com/TennyZhuang/ref-stable-lru>，并且已经发布到 crates.io [ref-stable-lru](https://crates.io/crates/ref-stable-lru)，感兴趣的可以试玩一下，特别是提出一些 unsound 的宝贵意见。
@@ -198,11 +220,7 @@ where
 
 ![cpp references/iterators invalidation](https://s2.loli.net/2024/01/26/N8jMQfDwR3KsUqH.png)
 
-这个 feature 是 C++ UB 的重灾区之一，主要原因是只在 doc 里提到，完全没法在签名上约束。而 Rust 完全阻止了相关的行为，Rust 标准库的所有 collection，只要你持有任何一个 reference，你都无法对这个结构进行任何操作，这其实浪费了 collection 的很多特性。
-
-这篇文章的设计思路是将 collection 的操作权限分散到各个 Perm 上，从而提供细粒度的读写权限控制，这个思想高度借鉴了 Ghost Cell。用类似的思路，我们也可以实现一些其他常用的数据结构，例如持有引用的同时可以 push 的 VecDeque。基于这个思路，我们既提供了类似 C++ STL 一样强大的 reference stability，又可以完全使用 safe rust 调用，从而避免了 UB。当然结果就是我们的 API 相对比较复杂。
-
-目前我认为这个权限分离的方案并不适合作为标准库提供的 library，因为 rust 还可以进一步探索如何修改语言，让 Ghost Cell 风格的 API 更易用。但这个方案可以实现一些大型库的基础设施，提供 safe API 给上层调用。
+这个 feature 是 C++ UB 的重灾区之一，主要原因是只在 doc 里提到，完全没法在签名上约束。而 Rust 完全阻止了相关的行为，Rust 标准库的所有 collection，只要你持有任何一个 reference，你都无法对这个结构进行任何操作，这其实浪费了 collection 的很多特性。这篇文章的设计思路是将 collection 的操作权限分散到各个 Perm 上，从而提供细粒度的读写权限控制，这个思想高度借鉴了 [Ghost Cell][ghost_cell]。用类似的思路，我们也可以实现一些其他常用的数据结构，例如持有引用的同时可以 push 的 `VecDeque`。
 
 [cppreference_container_stability]: https://en.cppreference.com/w/cpp/container#Iterator_invalidation
 [lru-rs]:https://crates.io/crates/lru
