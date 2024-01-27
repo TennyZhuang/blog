@@ -85,7 +85,7 @@ cache.put("a", "b".to_string());
 [x, y, z].join(" ");
 ```
 
-我们很快发现在修改了 `get` 的签名后，我们在 safe rust 中，在 `&V` 仍然合法时调用 `push`。这个方法会覆盖现有的 value，或者淘汰最旧的 entry。被覆盖的 entry 会在返回后被 drop。在此之后我们继续访问 `vals` 就会导致 UB。办法也非常简单，我们只需要修改 `put` 的签名即可。
+我们很快发现在修改了 `get` 的签名后，我们在 safe rust 中，在 `&V` 仍然合法时调用 `push`。这个方法会覆盖现有的 value，或者淘汰最旧的 entry。被覆盖的 entry 会在返回后被 drop。在此之后我们继续访问 `x` 就会导致 UB。办法也非常简单，我们只需要修改 `put` 的签名即可。
 
 ```rust
 pub fn put<'cache,'token>(&mut self, k: K, v: V, token: &'token mut Token) -> Option<V> {todo!()}
@@ -99,7 +99,7 @@ cache.put("a", "b", &mut cache);
 [x, y, z].join(" ");
 ```
 
-由于 put 需要 &mut Token 作为参数，而 &Token 已经被 vals 捕获了，这里会编译失败。
+由于 put 需要 &mut Token 作为参数，而 `&Token` 已经被 `x`/`y`/`z` 不可变引用了，这里会编译失败。
 
 现在我们可以给 `Token` 一个更好的名字了，不难发现，`Token` 其实是对 value 本身的读写权限。我们将它重命名为 `ValuePerm`。
 
