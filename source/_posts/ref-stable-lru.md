@@ -1,5 +1,5 @@
 ---
-title: 用 Rust 设计一个满足 reference stability 的 LRU Cache
+title: Design a collection with compile-time reference stability in Rust
 date: 2024-01-26 19:03:00
 tags:
 - Programming
