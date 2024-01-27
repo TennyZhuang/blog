@@ -78,9 +78,10 @@ pub fn get<'cache, 'key, 'token>(&'cache self, k: &'key K, token: &'token Token)
 这样我们之前同时持有多个 `&V` 的代码就能编译通过了！Happy Ending？
 
 ```rust
-let x = cache.get(&"a").unwrap().as_str();
-let y = cache.get(&"b").unwrap().as_str();
-let z = cache.get(&"c").unwrap().as_str();
+let token = Token;
+let x = cache.get(&"a", &token).unwrap().as_str();
+let y = cache.get(&"b", &token).unwrap().as_str();
+let z = cache.get(&"c", &token).unwrap().as_str();
 cache.put("a", "b".to_string());
 [x, y, z].join(" ");
 ```
@@ -92,10 +93,10 @@ pub fn put<'cache,'token>(&mut self, k: K, v: V, token: &'token mut Token) -> Op
 ```
 
 ```rust
-let x = cache.get(&"a").unwrap().as_str();
-let y = cache.get(&"b").unwrap().as_str();
-let z = cache.get(&"c").unwrap().as_str();
-cache.put("a", "b", &mut cache);
+let x = cache.get(&"a", &token).unwrap().as_str();
+let y = cache.get(&"b", &token).unwrap().as_str();
+let z = cache.get(&"c", &token).unwrap().as_str();
+cache.put("a", "b", &mut cache, &mut token);
 [x, y, z].join(" ");
 ```
 
@@ -163,9 +164,9 @@ new_lru_cache(|mut perm, mut cache| {
     cache.put("a", "b".to_string(), &mut perm);
     cache.put("b", "c".to_string(), &mut perm);
     cache.put("c", "d".to_string(), &mut perm);
-    let x = cache.get(&"a").unwrap().as_str();
-    let y = cache.get(&"b").unwrap().as_str();
-    let z = cache.get(&"c").unwrap().as_str();
+    let x = cache.get(&"a", &perm).unwrap().as_str();
+    let y = cache.get(&"b", &perm).unwrap().as_str();
+    let z = cache.get(&"c", &perm).unwrap().as_str();
     [x, y, z].join(" ");
 });
 ```
@@ -177,9 +178,9 @@ new_lru_cache(|mut perm, mut cache| {
     cache.put("a", "b".to_string(), &mut perm);
     cache.put("b", "c".to_string(), &mut perm);
     cache.put("c", "d".to_string(), &mut perm);
-    let x = cache.get(&"a").unwrap().as_str();
-    let y = cache.get(&"b").unwrap().as_str();
-    let z = cache.get(&"c").unwrap().as_str();
+    let x = cache.get(&"a", &perm).unwrap().as_str();
+    let y = cache.get(&"b", &perm).unwrap().as_str();
+    let z = cache.get(&"c", &perm).unwrap().as_str();
     drop(cache);
     [x, y, z].join(" "); // Boom
 });
@@ -200,9 +201,9 @@ new_lru_cache(|mut perm, mut cache| {
     cache.put("a", "b".to_string(), &mut perm);
     cache.put("b", "c".to_string(), &mut perm);
     cache.put("c", "d".to_string(), &mut perm);
-    let x = cache.get(&"a").unwrap().as_str();
-    let y = cache.get(&"b").unwrap().as_str();
-    let z = cache.get(&"c").unwrap().as_str();
+    let x = cache.get(&"a", &perm).unwrap().as_str();
+    let y = cache.get(&"b", &perm).unwrap().as_str();
+    let z = cache.get(&"c", &perm).unwrap().as_str();
     [x, y, z].join(" ");
     
     (perm, cache)
