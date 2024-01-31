@@ -67,10 +67,10 @@ theme: fluid
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
-deploy:
-  type: git
-  repo: git@github.com:TennyZhuang/blog.git
-  branch: gh-pages
+# deploy:
+#   type: git
+#   repo: git@github.com:TennyZhuang/blog.git
+#   branch: gh-pages
 
 # Plugins
 
