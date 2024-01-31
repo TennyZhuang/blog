@@ -712,7 +712,7 @@ packages:
       chalk: 4.1.2
       hexo-fs: 3.1.0
       hexo-util: 2.5.0
-      moment: 2.29.1
+      moment: 2.30.1
       nunjucks: 3.2.4
     transitivePeerDependencies:
       - chokidar
@@ -886,7 +886,7 @@ packages:
       js-yaml: 4.1.0
       micromatch: 4.0.4
       moize: 6.1.0
-      moment: 2.29.1
+      moment: 2.30.1
       moment-timezone: 0.5.44
       nunjucks: 3.2.4
       picocolors: 1.0.0
@@ -1198,10 +1198,6 @@ packages:
     resolution: {integrity: sha512-nv3YpzI/8lkQn0U6RkLd+f0W/zy/JnoR5/EyPz/dNkPTBjA2jNLCVxaiQ8QpeLymhSZvX0wCL5s27NQWdOPwAw==}
     dependencies:
       moment: 2.30.1
-    dev: false
-
-  /moment@2.29.1:
-    resolution: {integrity: sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==}
     dev: false
 
   /moment@2.30.1:
