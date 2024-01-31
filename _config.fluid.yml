@@ -645,8 +645,8 @@ post:
     enable: true
     # 指定的插件，需要同时设置对应插件的必要参数
     # The specified plugin needs to set the necessary parameters at the same time
-    # Options: utterances | disqus | gitalk | valine | waline | changyan | livere | remark42 | twikoo | cusdis
-    type: cusdis
+    # Options: utterances | disqus | gitalk | valine | waline | changyan | livere | remark42 | twikoo | cusdis | giscus | discuss
+    type: giscus
 
 
 #---------------------------
@@ -782,6 +782,19 @@ cusdis:
   host: https://blog-cusdis.vercel.app
   app_id: 64ba9d39-bca2-4cd8-828e-22b73177630e
   lang: zh-cn
+
+giscus:
+  repo: TennyZhuang/blog
+  repo-id: "MDEwOlJlcG9zaXRvcnk2NDUwNDExOQ=="
+  category: Announcements
+  category-id: DIC_kwDOA9hBN84Cc0_d
+  theme-light: light
+  theme-dark: dark
+  mapping: pathname
+  reactions-enabled: 1
+  emit-metadata: 0
+  input-position: bottom
+  lang: zh-CN
 
 #---------------------------
 # 归档页
