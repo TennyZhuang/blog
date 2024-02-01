@@ -143,6 +143,8 @@ let data = cache.get("apple");
 dbg!(data);
 ```
 
+我添加了[一大堆 UI Test](https://github.com/TennyZhuang/ref-stable-lru/pull/2/files)，来覆盖各种使用场景和应该编译失败的场景，感兴趣的朋友可以看一下这些 test case。
+
 ## Conclusion
 
 上一篇文章的末尾，我们提到了这套 API 较差的易用性可能限制了它的应用空间，那么这篇文章的改进在我看来，如果可以证明其 soundness，甚至达到了可以合并到标准库的程度（我会尝试给标准库的 `LinkedList`、`VecDeque` 等提 Reference Stability 的 RFC）。这个将数据和操作分离的 API 改进，我们只需要在原本的数据结构上单独添加一个 `scope` API，并且在对应的 closure 内遵循权限分离的设计。而在不需要 reference stability 的场景，我们不会引入任何额外的代码复杂度，真正地做到了 “pay as you needed”，这非常符合 Rust 的设计哲学。
