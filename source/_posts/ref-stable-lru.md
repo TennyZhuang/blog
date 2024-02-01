@@ -1,5 +1,5 @@
 ---
-title: Design a collection with compile-time reference stability in Rust
+title: Design a collection with compile-time reference stability in Rust (1)
 date: 2024-01-26 19:03:00
 tags:
 - Programming
