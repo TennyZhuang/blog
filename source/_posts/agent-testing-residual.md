@@ -42,13 +42,13 @@ tags:
 
 ```mermaid
 flowchart TD
-    Start([开始]) --> ModeA{模式 A:<br/>只动测试<br/>不动实现}
-    ModeA -->|新增测试跑不过| FixTest[测试没刻画准行为<br/>Agent 自己修测试]
+    Start([开始]) --> ModeA{模式 A：只动测试，不动实现}
+    ModeA -->|测试失败| FixTest[测试不准 → Agent 自修]
     FixTest --> ModeA
-    ModeA -->|测试通过| ModeB{模式 B:<br/>只动实现<br/>不动测试}
-    ModeB -->|功能跑不过| FixImpl[新实现有问题<br/>Agent 自己修实现]
+    ModeA -->|测试通过| ModeB{模式 B：只动实现，不动测试}
+    ModeB -->|功能失败| FixImpl[实现有误 → Agent 自修]
     FixImpl --> ModeB
-    ModeB -->|功能通过| Residual["✓ 残差确认<br/>新功能符合预期"]
+    ModeB -->|功能通过| Residual[✓ 残差确认]
     Residual --> ModeA
     
     style ModeA fill:#e1f5fe
@@ -150,24 +150,22 @@ RT 的根本的目的是，让 Agent 从"**上一个版本还不错**"这个事�
 
 ```mermaid
 flowchart LR
-    subgraph CT["核心测试 CT"]
-        direction TB
-        C1["人工挑选关键路径"]
-        C2["输出小而清晰"]
-        C3["开发者确认正确性"]
-        C4["消耗: 注意力 💰"]
+    subgraph CT[核心测试 CT]
+        C1[人工挑选关键路径]
+        C2[输出清晰可控]
+        C3[人工确认正确性]
+        C4[消耗注意力 💰]
     end
     
-    subgraph RT["回归测试 RT"]
-        direction TB
-        R1["Agent 大量生成"]
-        R2["固化当前行为基线"]
-        R3["只在 diff 时介入"]
-        R4["消耗: token 🪙"]
+    subgraph RT[回归测试 RT]
+        R1[Agent 批量生成]
+        R2[固化行为基线]
+        R3[diff 时介入]
+        R4[消耗 token 🪙]
     end
     
-    CT -->|保证| Correct["正确性 ✅"]
-    RT -->|保证| Cont["行为连续性 🔄"]
+    CT -->|保证| Correct[正确性 ✅]
+    RT -->|保证| Cont[连续性 🔄]
     
     style CT fill:#ffebee
     style RT fill:#e8f5e9
