@@ -42,11 +42,11 @@ tags:
 
 ```mermaid
 flowchart TD
-    Start([开始]) --> ModeA{模式 A：只动测试，不动实现}
-    ModeA -->|测试失败| FixTest[测试不准 → Agent 自修]
+    Start([开始]) --> ModeA{只动测试，不动实现}
+    ModeA -->|测试失败| FixTest[Agent 自修]
     FixTest --> ModeA
-    ModeA -->|测试通过| ModeB{模式 B：只动实现，不动测试}
-    ModeB -->|功能失败| FixImpl[实现有误 → Agent 自修]
+    ModeA -->|测试通过| ModeB{只动实现，不动测试}
+    ModeB -->|功能失败| FixImpl[Agent 自修]
     FixImpl --> ModeB
     ModeB -->|功能通过| Residual[✓ 残差确认]
     Residual --> ModeA
