@@ -199,10 +199,6 @@ flowchart LR
   - core：PR 必须人工确认断言语义/expected output；  
   - RT：PR 不要求逐条阅读 baseline，只在 snapshot diff 出现时人工判断"变更是否合理"。
 
-有一个小的误区需要澄清一下：Snapshot Testing 只是一种工具，不是专为 RT 构建的。
-- CT 中一样可以使用，只要你**认真看了生成的 snapshot 是否是正确的**。
-- RT 中也不一定要使用，比如你关心的运行覆盖某个分支的代码之后只要不 panic 即可。
-
 ## 结语：验得起才是真的快
 
 Agent 让 **Coding 带宽** 变得几乎不稀缺，于是开发的主战场从"写得快"转向了"验得起"。
